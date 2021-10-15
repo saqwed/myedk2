@@ -1,0 +1,89 @@
+name: edk2
+
+on: push
+
+jobs:
+  App:
+    name: edk2
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { PACKAGE: 'AppPkg',     PACKAGE_DSC: 'AppPkg.dsc',      TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5' },
+          { PACKAGE: 'AppPkg',     PACKAGE_DSC: 'AppPkg.dsc',      TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5' },
+          { PACKAGE: 'ShellPkg',   PACKAGE_DSC: 'ShellPkg.dsc',    TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5' },
+          { PACKAGE: 'ShellPkg',   PACKAGE_DSC: 'ShellPkg.dsc',    TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF' },
+          { PACKAGE: 'FatPkg',     PACKAGE_DSC: 'FatPkg.dsc',      TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5' },
+          { PACKAGE: 'OvmfPkg',    PACKAGE_DSC: 'OvmfPkgX64.dsc',  TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5' },
+          { PACKAGE: 'ArmVirtPkg', PACKAGE_DSC: 'ArmVirtQemu.dsc', TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5' },
+        ]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup build environment
+        run: |-
+          sudo apt-get update
+          sudo apt-get install -y nasm acpica-tools build-essential crossbuild-essential-i386 crossbuild-essential-amd64 crossbuild-essential-arm64 uuid-dev python3.8 python3-distutils python3-pip bc gawk llvm-dev lld clang
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+          sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
+
+      - name: Setup edk2 build environment
+        run: |-
+          sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
+          cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
+          source edk2/edksetup.sh
+          if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
+            make -C edk2/BaseTools
+          fi
+          pushd $PWD && cd edk2/BaseTools/Source/C/GenBin & make && popd
+          cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
+          chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
+          cd edk2/CryptoPkg/Library/OpensslLib/
+          perl process_files.pl
+
+      - name: Patch
+        run: |-
+          if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
+            # Remove 5 seconds delay to shell
+            sed -i 's+ShellInfoObject.ShellInitSettings.Delay = 5;+ShellInfoObject.ShellInitSettings.Delay = 0;+1' edk2/ShellPkg/Application/Shell/Shell.c
+            # Remove assert when enable debug mode
+            sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
+            # Increase more screen buffers
+            sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
+          fi
+
+      - name: Build
+        run: |-
+          if [ "${{ matrix.ARCH }}" = "IA32" ]; then
+            export GCC5_IA32_PREFIX=i686-linux-gnu-
+          fi
+          if [ "${{ matrix.ARCH }}" = "X64" ]; then
+            export GCC5_X64_PREFIX=x86_64-linux-gnu-
+          fi
+          if [ "${{ matrix.ARCH }}" = "AARCH64" ]; then
+            export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+          fi
+          export WORKSPACE=$PWD
+          ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
+          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test
+          source edk2/edksetup.sh
+          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }}
+          rm SctPkg
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
