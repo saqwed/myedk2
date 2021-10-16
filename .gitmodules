@@ -7,3 +7,6 @@
 [submodule "edk2-test"]
 	path = edk2-test
 	url = https://github.com/tianocore/edk2-test.git
+[submodule "edk2-platforms"]
+	path = edk2-platforms
+	url = https://github.com/tianocore/edk2-platforms
