@@ -17,8 +17,8 @@ jobs:
           { PACKAGE: 'FatPkg',         PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',      TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
           { PACKAGE: 'OvmfPkg',        PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',      TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
           { PACKAGE: 'ArmVirtPkg',     PACKAGE_DSC: 'ArmVirtQemu.dsc',    TARGET: 'RELEASE', ARCH: 'AARCH64',  TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'IA32_X64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE' },
-          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'IA32_X64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE' },
+          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'IA32_X64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'IA32_X64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
         ]
     steps:
       - uses: actions/checkout@v2
@@ -57,6 +57,13 @@ jobs:
             sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
             # Increase more screen buffers
             sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
+          fi
+          if [ "${{ matrix.PACKAGE }}" = "UefiPayloadPkg" ]; then
+            # Remove Keyboard selftest
+            pushd $PWD
+            cd edk2
+            git am -3 --reject --keep-cr ../0001-Remove-keyboard-selftest.patch
+            popd
           fi
 
       - name: Build

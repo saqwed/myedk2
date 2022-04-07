@@ -1,0 +1,36 @@
+From 926637c5abe97598ee0b79731e135fdcb8ea7123 Mon Sep 17 00:00:00 2001
+From: Simon Yang <simon1.yang@intel.com>
+Date: Thu, 7 Apr 2022 17:42:18 +0800
+Subject: [PATCH] Remove keyboard selftest
+
+---
+ MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c b/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+index 77dc226222..8e8c0e5317 100644
+--- a/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
++++ b/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+@@ -1731,13 +1731,13 @@ InitKeyboard (
+     //
+     // wait for BAT completion code
+     //
+-    mWaitForValueTimeOut = KEYBOARD_BAT_TIMEOUT;
++    // mWaitForValueTimeOut = KEYBOARD_BAT_TIMEOUT;
+ 
+-    Status = KeyboardWaitForValue (ConsoleIn, KEYBOARD_8048_RETURN_8042_BAT_SUCCESS);
+-    if (EFI_ERROR (Status)) {
+-      KeyboardError (ConsoleIn, L"Keyboard self test failed!\n\r");
+-      goto Done;
+-    }
++    // Status = KeyboardWaitForValue (ConsoleIn, KEYBOARD_8048_RETURN_8042_BAT_SUCCESS);
++    // if (EFI_ERROR (Status)) {
++    //   KeyboardError (ConsoleIn, L"Keyboard self test failed!\n\r");
++    //   goto Done;
++    // }
+ 
+     mWaitForValueTimeOut = KEYBOARD_WAITFORVALUE_TIMEOUT;
+ 
+-- 
+2.35.1
+
