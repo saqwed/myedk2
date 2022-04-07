@@ -62,6 +62,8 @@ jobs:
             # Remove Keyboard selftest
             pushd $PWD
             cd edk2
+            git config --global user.email "simon1.yang@intel.com"
+            git config --global user.name "Simon Yang"
             git am -3 --reject --keep-cr ../0001-Remove-keyboard-selftest.patch
             popd
           fi
