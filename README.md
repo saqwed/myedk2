@@ -6,7 +6,7 @@ Due to tianocore separates packages into different repositories, pull these repo
 
 # Local build instructions
 
-- OS
+## Environment
 
 ubuntu 20.04 LTS
 
@@ -34,7 +34,24 @@ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 ```
 
-- Clone repositories
+## Install NASM 2.15.05(edk2_stable202205 or above)
+
+Because Ubuntu distribution still keep NASM version as 2.13.02-0.1(2022/05/28), we have to upgrade NASM by ourselves otherwise you will meet build error.
+
+```bash
+sudo add-apt-repository universe
+sudo apt-get update
+sudo apt-get install -y alien
+wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
+rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+```
+
+- [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
+- [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
+- [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
+
+## Clone repositories
 
 ```bash
 git clone git@github.com:saqwed/myedk2.git myedk2
@@ -43,7 +60,7 @@ git submodule init && git submodule update
 git submodule foreach git submodule init && git submodule foreach git submodule update
 ```
 
-- (Optional) Patch tools_def.txt for cross compiler
+## (Optional) Patch tools_def.txt for cross compiler
 
 ```bash
 sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
@@ -55,14 +72,14 @@ export GCC5_X64_PREFIX=x86_64-linux-gnu-
 export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
 ```
 
-- Setup edk2 build environment
+## Setup edk2 build environment
 
 ```bash
 make -C edk2/BaseTools
 pushd $PWD && cd edk2/CryptoPkg/Library/OpensslLib/ && perl process_files.pl && popd
 ```
 
-- Build
+## Build
 
 ```bash
 export WORKSPACE=$PWD
