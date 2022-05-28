@@ -32,6 +32,16 @@ jobs:
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
           sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 
+# https://edk2.groups.io/g/devel/topic/90276518
+      - name: Install nasm 2.15.05
+        run: |-
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install alien
+          wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+          sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
+          rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+
       - name: Setup edk2 build environment
         run: |-
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
