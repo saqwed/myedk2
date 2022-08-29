@@ -112,6 +112,6 @@ nmake
 REM open a new command prompt
 set WORKSPACE=%CD%
 set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%WORKSPACE%/edk2-platforms/Silicon/Intel
-edk2\edksetup.sh VS2019
-build -a X64 -t GCC5 -p ShellPkg/ShellPkg.dsc -b RELEASE
+edk2\edksetup.bat VS2019
+build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
