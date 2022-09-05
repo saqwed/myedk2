@@ -42,10 +42,7 @@ rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
 ### Clone repositories
 
 ```bash
-git clone git@github.com:saqwed/myedk2.git myedk2
-cd myedk2
-git submodule init && git submodule update
-git submodule foreach git submodule init && git submodule foreach git submodule update
+git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
 ```
 
 ### (Optional) Patch tools_def.txt for cross compiler
@@ -91,10 +88,7 @@ build -a X64 -t GCC5 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ### Clone repositories
 
 ```batch
-git clone git@github.com:saqwed/privateedk2.git privateedk2
-cd myedk2
-git submodule init && git submodule update
-git submodule foreach git submodule init && git submodule foreach git submodule update
+git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
 ```
 
 ### Setup edk2 build environment
