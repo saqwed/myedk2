@@ -95,7 +95,6 @@ git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
 
 ```batch
 rem Open "x86 Native Tools Command Prompt for VS 2019" via start menu
-set WORKSPACE=%CD%
 cd %WORKSPACE%\edk2\BaseTools
 nmake
 ```
