@@ -114,3 +114,5 @@ jobs:
             Build/SETUPLOG.*
             Build/UPDATE*.*
             Build/**/AutoGen.*
+            edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
+            edk2-libc/StdLib/Efi/StdLib/etc/
