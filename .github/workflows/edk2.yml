@@ -78,6 +78,13 @@ jobs:
             sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
           fi
 
+      - name: Patch for Python mod
+        run: |-
+          if [ "${{ matrix.PACKAGE }}" = "AppPkg" ]; then
+            pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
+            sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
+          fi
+
       - name: Build
         run: |-
           if [ "${{ matrix.ARCH }}" = "IA32" ]; then
