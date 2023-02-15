@@ -104,6 +104,7 @@ jobs:
           rm SctPkg
 
       - uses: actions/upload-artifact@v3
+        if: ${{ '${{ matrix.PACKAGE }}' == 'AppPkg' }}
         with:
           name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
           path: |-
@@ -116,3 +117,16 @@ jobs:
             Build/**/AutoGen.*
             edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
             edk2-libc/StdLib/Efi/StdLib/etc/
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ '${{ matrix.PACKAGE }}' != 'AppPkg' }}
+        with:
+          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
