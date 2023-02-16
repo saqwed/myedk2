@@ -5,7 +5,8 @@ on: push
 jobs:
   App:
     name: edk2
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    container: ghcr.io/saqwed/edk2_ubuntu_container:202211
     strategy:
       fail-fast: false
       matrix:
@@ -24,23 +25,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      - name: Setup build environment
-        run: |-
-          sudo apt-get update
-          sudo apt-get install -y nasm acpica-tools build-essential crossbuild-essential-i386 crossbuild-essential-amd64 crossbuild-essential-arm64 uuid-dev python3.8 python3-distutils python3-pip bc gawk llvm-dev lld clang
-          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
-          sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
-
-# https://edk2.groups.io/g/devel/topic/90276518
-      - name: Install nasm 2.15.05
-        run: |-
-          sudo add-apt-repository universe
-          sudo apt-get update
-          sudo apt-get install -y wget alien
-          wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-          sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
-          rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
 
       - name: Setup edk2 build environment
         run: |-

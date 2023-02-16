@@ -1,0 +1,37 @@
+# docker build . -t edk2_container:202211 -f Dockerfile-Ubuntu
+# DOCKER_BUILDKIT=1 docker build --no-cache -t edk2_container:202211 . -f Dockerfile-Ubuntu
+
+# github registry: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
+
+FROM ubuntu:22.04 AS build
+# # Change default shell to bash to avoid cannot use command source problem
+SHELL ["/bin/bash", "-c"]
+ENV TZ=Asia/Taipei
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN set -ex && apt-get update && \
+      apt-get install -y git nasm acpica-tools build-essential locales \
+      crossbuild-essential-i386 crossbuild-essential-amd64 qemu-system-x86 \
+      crossbuild-essential-arm64 python3 python3-distutils python3-pip \
+      uuid-dev bc gawk llvm-dev lld clang wget software-properties-common && \
+      add-apt-repository universe && apt-get install -y alien ca-certificates && \
+      apt-get autoremove --purge && \
+      apt-get -y clean && \
+      rm -rf /var/lib/apt/lists/*
+RUN set -ex && update-alternatives --install /usr/bin/python python /usr/bin/python3 10 && \
+      update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
+RUN set -ex && wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm \
+      -O /tmp/nasm-2.15.05-0.fc31.x86_64.rpm && \
+      alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i && \
+      rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Setup the entry point
+# https://github.com/tianocore/containers/blob/main/Ubuntu-20/ubuntu20_dev_entrypoint.sh
+COPY ubuntu20_dev_entrypoint.sh /usr/libexec/entrypoint
+ENTRYPOINT ["/usr/libexec/entrypoint"]
