@@ -6,6 +6,7 @@ jobs:
   App:
     name: edk2
     runs-on: ubuntu-20.04
+    container: ghcr.io/tianocore/containers/ubuntu-20-build:48540ad
     strategy:
       fail-fast: false
       matrix:
