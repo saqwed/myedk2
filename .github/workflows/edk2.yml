@@ -28,14 +28,12 @@ jobs:
 
       - name: Setup edk2 build environment
         run: |-
+          cp -Rf /BaseTools edk2/BaseTools
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
           cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
-          if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
-            make -C edk2/BaseTools
-          fi
           pushd $PWD && cd edk2/BaseTools/Source/C/GenBin & make && popd
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin

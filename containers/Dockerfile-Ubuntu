@@ -1,11 +1,12 @@
-# docker build . -t edk2_container:202211 -f Dockerfile-Ubuntu
-# DOCKER_BUILDKIT=1 docker build --no-cache -t edk2_container:202211 . -f Dockerfile-Ubuntu
+# docker build --no-cache -t ghcr.io/saqwed/edk2_ubuntu_container:202211 . -f Dockerfile-Ubuntu
+# DOCKER_BUILDKIT=1 docker build --no-cache -t ghcr.io/saqwed/edk2_ubuntu_container:202211 . -f Dockerfile-Ubuntu
+FROM ubuntu:22.04 AS ubuntu_base
 
-# github registry: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
-
-FROM ubuntu:22.04 AS build
-# # Change default shell to bash to avoid cannot use command source problem
+# Change default shell to bash to avoid cannot use command source problem
+# Ref: https://stackoverflow.com/questions/20635472/using-the-run-instruction-in-a-dockerfile-with-source-does-not-work
+RUN ln -snf /bin/bash /bin/sh
 SHELL ["/bin/bash", "-c"]
+
 ENV TZ=Asia/Taipei
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN set -ex && apt-get update && \
@@ -31,6 +32,26 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+FROM alpine:3.16.3 AS alpine_base
+RUN apk add --update git
+
+FROM alpine_base AS tianocore_source_code
+# RUN git clone --recurse-submodule https://github.com/tianocore/edk2.git
+RUN set -ex && \
+      git clone https://github.com/tianocore/edk2.git && \
+      cd edk2 && \
+      git submodule init && \
+      git submodule update BaseTools/Source/C/BrotliCompress/brotli && \
+      git submodule update MdeModulePkg/Library/BrotliCustomDecompressLib/brotli
+RUN cd edk2 && git checkout edk2-stable202211
+
+FROM ubuntu_base AS tianocore_basetools
+COPY --from=tianocore_source_code edk2/ edk2/
+WORKDIR /edk2
+RUN make -C BaseTools
+
+FROM ubuntu_base AS build
+COPY --from=tianocore_basetools edk2/BaseTools/ BaseTools/
 # Setup the entry point
 # https://github.com/tianocore/containers/blob/main/Ubuntu-20/ubuntu20_dev_entrypoint.sh
 COPY ubuntu20_dev_entrypoint.sh /usr/libexec/entrypoint
