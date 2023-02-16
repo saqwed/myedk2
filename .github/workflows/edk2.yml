@@ -75,8 +75,7 @@ jobs:
           export WORKSPACE=$PWD
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
           export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel
-          . edk2/edksetup.sh
-          whoami
+          source edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
           rm SctPkg
 
