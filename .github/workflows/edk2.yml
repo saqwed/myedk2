@@ -3,10 +3,10 @@ name: edk2
 on: push
 
 jobs:
-  App:
-    name: edk2
+  linux:
+    name: edk2-ubuntu
     runs-on: ubuntu-20.04
-    container: ghcr.io/tianocore/containers/ubuntu-20-build:48540ad
+    # container: ghcr.io/tianocore/containers/ubuntu-20-build:48540ad
     strategy:
       fail-fast: false
       matrix:
@@ -96,6 +96,47 @@ jobs:
           source edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
           rm SctPkg
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
+
+  windows:
+    name: edk2-windows
+    runs-on: windows-2022
+    container: ghcr.io/tianocore/containers/windows-2022-build:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { PACKAGE: 'ShellPkg',       PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'ShellPkg',       PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019', ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'OvmfPkg',        PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+        ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup edk2 build environment
+        run: |-
+            cd edk2/BaseTools
+            nmake
+
+      - name: Build
+        run: |-
+            set WORKSPACE=%CD%
+            set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%WORKSPACE%/edk2-platforms/Silicon/Intel
+            edk2\edksetup.bat VS2019
+            build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
       - uses: actions/upload-artifact@v3
         with:
