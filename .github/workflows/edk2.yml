@@ -30,6 +30,10 @@ jobs:
         run: |-
           cp -Rf /BaseTools $PWD/edk2/BaseTools
           ls -al $PWD/edk2/
+          ls -al $PWD/edk2/BaseTools
+          ls -al $PWD/edk2/BaseTools/Source
+          ls -al $PWD/edk2/BaseTools/Source/C
+          ls -al $PWD/edk2/BaseTools/Source/C/bin
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
