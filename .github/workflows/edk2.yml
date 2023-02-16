@@ -28,7 +28,8 @@ jobs:
 
       - name: Setup edk2 build environment
         run: |-
-          cp -Rf /BaseTools edk2/BaseTools
+          cp -Rf /BaseTools $PWD/edk2/BaseTools
+          ls -al $PWD/edk2/
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
