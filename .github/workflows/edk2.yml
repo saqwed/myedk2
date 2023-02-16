@@ -78,6 +78,13 @@ jobs:
             sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
           fi
 
+      - name: Patch for Python mod
+        run: |-
+          if [ "${{ matrix.PACKAGE }}" = "AppPkg" ]; then
+            pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
+            sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
+          fi
+
       - name: Build
         run: |-
           if [ "${{ matrix.ARCH }}" = "IA32" ]; then
@@ -96,7 +103,24 @@ jobs:
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
           rm SctPkg
 
+# Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
+        if: ${{ matrix.PACKAGE == 'AppPkg' }}
+        with:
+          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
+            edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
+            edk2-libc/StdLib/Efi/StdLib/etc/
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ matrix.PACKAGE != 'AppPkg' }}
         with:
           name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
           path: |-
