@@ -16,7 +16,7 @@ Due to tianocore separates packages into different repositories, pull these repo
 sudo apt-get update
 sudo apt-get install -y nasm git acpica-tools build-essential \
   crossbuild-essential-i386 crossbuild-essential-amd64 \
-  crossbuild-essential-arm64 uuid-dev python3.8 python3-distutils \
+  crossbuild-essential-arm64 uuid-dev python3 python3-distutils \
   python3-pip bc gawk llvm-dev lld clang
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10

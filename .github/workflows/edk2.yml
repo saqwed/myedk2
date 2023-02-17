@@ -52,7 +52,7 @@ jobs:
           if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
             make -C edk2/BaseTools
           fi
-          pushd $PWD && cd edk2/BaseTools/Source/C/GenBin & make && popd
+          pushd $PWD && cd edk2/BaseTools/Source/C/GenBin && make && popd
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
           cd edk2/CryptoPkg/Library/OpensslLib/
