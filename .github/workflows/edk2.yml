@@ -42,23 +42,37 @@ jobs:
           sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
           rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
 
-      - name: Setup edk2 build environment
+      - name: Build BaseTools
         run: |-
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
-          cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
           if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
             make -C edk2/BaseTools
           fi
+
+      - name: Build/Patch GenBin(Use for SctPkg)
+        run: |-
+          cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
+          sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
           pushd $PWD && cd edk2/BaseTools/Source/C/GenBin && make && popd
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
+
+      - name: Patch OpensslLib
+        run: |-
           cd edk2/CryptoPkg/Library/OpensslLib/
           perl process_files.pl
 
-      - name: Patch
+      - name: Patch for Python mod(Use for AppPkg Uefi Python support)
+        run: |-
+          if [ "${{ matrix.PACKAGE }}" = "AppPkg" ]; then
+            pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
+            sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
+          fi
+
+      - name: Customize Patches
         run: |-
           if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
             # Remove 5 seconds delay to shell
@@ -76,13 +90,6 @@ jobs:
             sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
             sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
             sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          fi
-
-      - name: Patch for Python mod
-        run: |-
-          if [ "${{ matrix.PACKAGE }}" = "AppPkg" ]; then
-            pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
-            sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
           fi
 
       - name: Build
