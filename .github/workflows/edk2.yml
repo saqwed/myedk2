@@ -42,23 +42,37 @@ jobs:
           sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
           rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
 
-      - name: Setup edk2 build environment
+      - name: Build BaseTools
         run: |-
           sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
           sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
-          cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
           if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
             make -C edk2/BaseTools
           fi
+
+      - name: Build/Patch GenBin(Use for SctPkg)
+        if: ${{ matrix.PACKAGE == 'SctPkg' }}
+        run: |-
+          cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
+          sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
           pushd $PWD && cd edk2/BaseTools/Source/C/GenBin && make && popd
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
+
+      - name: Patch OpensslLib
+        run: |-
           cd edk2/CryptoPkg/Library/OpensslLib/
           perl process_files.pl
 
-      - name: Patch
+      - name: Patch for Python mod(Use for AppPkg Uefi Python support)
+        if: ${{ matrix.PACKAGE == 'AppPkg' }}
+        run: |-
+          pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
+          sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
+
+      - name: Customize Patches
         run: |-
           if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
             # Remove 5 seconds delay to shell
@@ -78,30 +92,16 @@ jobs:
             sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
           fi
 
-      - name: Patch for Python mod
-        run: |-
-          if [ "${{ matrix.PACKAGE }}" = "AppPkg" ]; then
-            pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
-            sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
-          fi
-
       - name: Build
         run: |-
-          if [ "${{ matrix.ARCH }}" = "IA32" ]; then
-            export GCC5_IA32_PREFIX=i686-linux-gnu-
-          fi
-          if [ "${{ matrix.ARCH }}" = "X64" ]; then
-            export GCC5_X64_PREFIX=x86_64-linux-gnu-
-          fi
-          if [ "${{ matrix.ARCH }}" = "AARCH64" ]; then
-            export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
-          fi
+          export GCC5_IA32_PREFIX=i686-linux-gnu-
+          export GCC5_X64_PREFIX=x86_64-linux-gnu-
+          export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=$PWD
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
           export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel
-          source edk2/edksetup.sh
+          . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
-          rm SctPkg
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
