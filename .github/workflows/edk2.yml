@@ -106,9 +106,11 @@ jobs:
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
-      - name: Pacakge name character replacement
+      - name: Package name character replacement
         run: |
-          echo "ORG_PACKAGE_STR=${matrix.PACKAGE////-}" >> $MOD_PACKAGE_STR
+          ORG_PACKAGE_STR="${matrix.PACKAGE}"
+          MOD_PACKAGE_STR="${ORG_PACKAGE_STR//\//-}"
+          echo "MOD_PACKAGE_STR=${MOD_PACKAGE_STR}" >> $GITHUB_ENV
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
