@@ -10,15 +10,18 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { PACKAGE: 'AppPkg',         PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'AppPkg',         PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ShellPkg',       PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ShellPkg',       PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'FatPkg',         PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'OvmfPkg',        PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ArmVirtPkg',     PACKAGE_DSC: 'ArmVirtQemu.dsc',    TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
-          { PACKAGE: 'UefiPayloadPkg', PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'FatPkg',                             PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Features/Ext4Pkg',                   PACKAGE_DSC: 'Ext4Pkg.dsc',        TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Drivers/ASIX',                       PACKAGE_DSC: 'Asix.dsc',           TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg', PACKAGE_DSC: 'DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'OvmfPkg',                            PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'ArmVirtPkg',                         PACKAGE_DSC: 'ArmVirtQemu.dsc',    TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
         ]
     steps:
       - uses: actions/checkout@v3
@@ -99,15 +102,21 @@ jobs:
           export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=$PWD
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
-          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel
+          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
+
+      - name: Package name character replacement
+        run: |
+           PACKAGE=${{ matrix.PACKAGE }}
+           PACKAGE=${PACKAGE//\//-}
+           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.PACKAGE == 'AppPkg' }}
         with:
-          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
@@ -122,7 +131,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.PACKAGE != 'AppPkg' }}
         with:
-          name: edk2_${{ github.sha }}_${{ matrix.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
