@@ -116,7 +116,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.PACKAGE == 'AppPkg' }}
         with:
-          name: edk2_${{ github.sha }}_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
@@ -131,7 +131,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.PACKAGE != 'AppPkg' }}
         with:
-          name: edk2_${{ github.sha }}_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
