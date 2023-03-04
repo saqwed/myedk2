@@ -108,15 +108,15 @@ jobs:
 
       - name: Package name character replacement
         run: |
-          ORG_PACKAGE_STR=${{ matrix.PACKAGE }}
-          MOD_PACKAGE_STR=${ORG_PACKAGE_STR//\//-}
-          echo "MOD_PACKAGE_STR=${MOD_PACKAGE_STR}" >> $GITHUB_ENV
+           PACKAGE=${{ matrix.PACKAGE }}
+           PACKAGE=${PACKAGE//\//-}
+           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.PACKAGE == 'AppPkg' }}
         with:
-          name: edk2_${{ github.sha }}_$MOD_PACKAGE_STR_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
+          name: edk2_${{ github.sha }}_${{ PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
