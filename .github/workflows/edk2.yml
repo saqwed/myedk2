@@ -79,7 +79,7 @@ jobs:
         run: |-
           if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
             # Remove 5 seconds delay to shell
-            sed -i 's+ShellInfoObject.ShellInitSettings.Delay = 5;+ShellInfoObject.ShellInitSettings.Delay = 0;+1' edk2/ShellPkg/Application/Shell/Shell.c
+            sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
             # Remove assert when enable debug mode
             sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
             # Increase more screen buffers
