@@ -108,8 +108,8 @@ jobs:
 
       - name: Package name character replacement
         run: |
-          ORG_PACKAGE_STR="${matrix.PACKAGE}"
-          MOD_PACKAGE_STR="${ORG_PACKAGE_STR//\//-}"
+          ORG_PACKAGE_STR=${{ matrix.PACKAGE }}
+          MOD_PACKAGE_STR=${ORG_PACKAGE_STR//\//-}
           echo "MOD_PACKAGE_STR=${MOD_PACKAGE_STR}" >> $GITHUB_ENV
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
