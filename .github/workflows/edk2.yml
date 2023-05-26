@@ -3,7 +3,31 @@ name: edk2
 on: push
 
 jobs:
-  App:
+  Windows:
+    name: win-edk2
+    runs-on: windows-2022
+    container:
+      image: ghcr.io/saqwed/win_edk2_docker/win_edk2_docker:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Build BaseTools
+        run: |-
+          cd edk2
+          edksetup VS2019
+          cd edk2\BaseTools
+          nmake
+
+      - name: Build
+        run: |-
+          set PACKAGES_PATH=%CD%/edk2;%CD%/edk2-libc;%CD%/edk2-test;%CD%/edk2-platforms/Silicon/Intel;%CD%/edk2-platforms
+          cd edk2
+          edksetup.bat VS2019
+          build -a IA32 -a X64 -t VS2019 -p OvmfPkg/OvmfPkgIa32X64.dsc -b RELEASE
+
+  Linux:
     name: edk2
     runs-on: ubuntu-20.04
     strategy:
