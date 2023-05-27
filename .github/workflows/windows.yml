@@ -7,7 +7,8 @@ jobs:
     name: windows-build
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repositories
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Setup build environment
