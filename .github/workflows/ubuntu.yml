@@ -12,8 +12,8 @@ jobs:
         include: [
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '--pcd gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay=0 --pcd gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount=10' },
-          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '--pcd gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay=0 --pcd gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount=10' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '' },
           { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
@@ -79,8 +79,12 @@ jobs:
       - name: Customize Patches for ShellPkg
         if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
+          # Remove 5 seconds delay to shell
+          sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
           # Remove assert when enable debug mode
           sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
+          # Increase more screen buffers
+          sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
 
       - name: Customize Patches for UefiPayloadPkg
         if: ${{ matrix.NAME == 'UefiPayloadPkg' }}
