@@ -10,18 +10,18 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'FatPkg',                             PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Features/Ext4Pkg',                   PACKAGE_DSC: 'Ext4Pkg.dsc',        TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Drivers/ASIX',                       PACKAGE_DSC: 'Asix.dsc',           TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg', PACKAGE_DSC: 'DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'OvmfPkg',                            PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ArmVirtPkg',                         PACKAGE_DSC: 'ArmVirtQemu.dsc',    TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
-          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'CLANGDWARF', ADDITIONAL_DEFINITION: '' },
+          { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ArmVirtPkg',     PACKAGE: 'ArmVirtPkg/ArmVirtQemu.dsc',                            TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
         ]
     steps:
       - name: Checkout repositories
@@ -57,7 +57,7 @@ jobs:
           fi
 
       - name: Build/Patch GenBin(Use for SctPkg)
-        if: ${{ matrix.PACKAGE == 'SctPkg' }}
+        if: ${{ matrix.NAME == 'SctPkg' }}
         run: |-
           cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
@@ -71,13 +71,13 @@ jobs:
           perl process_files.pl
 
       - name: Patch for Python mod(Use for AppPkg Uefi Python support)
-        if: ${{ matrix.PACKAGE == 'AppPkg' }}
+        if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
           pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
           sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
 
       - name: Customize Patches for ShellPkg
-        if: ${{ matrix.PACKAGE == 'ShellPkg' }}
+        if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
           # Remove 5 seconds delay to shell
           sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
@@ -87,7 +87,7 @@ jobs:
           sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
 
       - name: Customize Patches for UefiPayloadPkg
-        if: ${{ matrix.PACKAGE == 'UefiPayloadPkg' }}
+        if: ${{ matrix.NAME == 'UefiPayloadPkg' }}
         run: |-
           # Remove Keyboard self test
           sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
@@ -106,19 +106,13 @@ jobs:
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
           export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms
           . edk2/edksetup.sh
-          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
-
-      - name: Package name character replacement
-        run: |
-           PACKAGE=${{ matrix.PACKAGE }}
-           PACKAGE=${PACKAGE//\//-}
-           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
+          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.PACKAGE == 'AppPkg' }}
+        if: ${{ matrix.NAME == 'AppPkg' }}
         with:
-          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
@@ -131,9 +125,9 @@ jobs:
             edk2-libc/StdLib/Efi/StdLib/etc/
 
       - uses: actions/upload-artifact@v3
-        if: ${{ matrix.PACKAGE != 'AppPkg' }}
+        if: ${{ matrix.NAME != 'AppPkg' }}
         with:
-          name: edk2_${{ env.PACKAGE }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
