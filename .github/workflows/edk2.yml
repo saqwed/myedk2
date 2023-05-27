@@ -3,8 +3,61 @@ name: edk2
 on: push
 
 jobs:
-  App:
-    name: edk2
+  windows:
+    name: windows
+    runs-on: windows-2019
+      matrix:
+        include: [
+          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'FatPkg',                             PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Features/Ext4Pkg',                   PACKAGE_DSC: 'Ext4Pkg.dsc',        TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Drivers/ASIX',                       PACKAGE_DSC: 'Asix.dsc',           TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg', PACKAGE_DSC: 'DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'OvmfPkg',                            PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+        ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup build environment
+        shell: cmd
+        run: |-
+# Install NASM
+          curl -SL --output ${{ github.workspace }}\nasm-2.16.01-win64.zip https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
+          powershell -Command "expand-archive -Path '${{ github.workspace }}\nasm-2.16.01-win64.zip' -DestinationPath 'c:\'"
+          move c:\nasm-2.16.01 c:\nasm
+# Install IASL
+          curl -SL --output ${{ github.workspace }}\iasl-win-20230331.zip https://acpica.org/sites/acpica/files/iasl-win-20230331.zip
+          powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20230331.zip' -DestinationPath 'c:\ASL'"
+# Install Visual Studio 2019
+          curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
+          REM ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
+          ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
+
+      - name: Build BaseTools
+        shell: cmd
+        run: |-
+          call ${{ github.workspace }}\vsenv.bat x86
+          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
+          cd ${{ github.workspace }}\edk2\BaseTools
+          nmake
+
+      - name: Build
+        shell: cmd
+        run: |-
+          call ${{ github.workspace }}\vsenv.bat x64
+          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
+          set PACKAGES_PATH=$WORKSPACE/edk2;$WORKSPACE/edk2-libc;$WORKSPACE/edk2-test;$WORKSPACE/edk2-platforms/Silicon/Intel;$WORKSPACE/edk2-platforms
+          cd ${{ github.workspace }}\edk2
+          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
+
+  linux:
+    name: ubuntu
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
