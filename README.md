@@ -1,4 +1,4 @@
-![example branch parameter](https://github.com/saqwed/myedk2/actions/workflows/edk2.yml/badge.svg?branch=master)
+![windows badge](https://github.com/saqwed/myedk2/actions/workflows/windows.yml/badge.svg?branch=master)![ubuntu badge](https://github.com/saqwed/myedk2/actions/workflows/ubuntu.yml/badge.svg?branch=master)
 
 Due to tianocore separates packages into different repositories, pull these repositories into submodule and provide GitHub action example for build instruction.
 
