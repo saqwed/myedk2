@@ -4,7 +4,7 @@ on: push
 
 jobs:
   windows:
-    name: windows
+    name: windows-build
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
           build -a IA32 -a X64 -t VS2019 -p OvmfPkg/OvmfPkgIa32X64.dsc -b RELEASE
 
   linux:
-    name: ubuntu
+    name: ubuntu-build
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
