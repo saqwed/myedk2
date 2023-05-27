@@ -43,11 +43,52 @@ jobs:
           cd ${{ github.workspace }}\edk2\BaseTools
           nmake
 
+      - name: Build/Patch GenBin(Use for SctPkg)
+        if: ${{ matrix.PACKAGE == 'SctPkg' }}
+        run: |-
+          set path=%path%;${{ github.workspace }}\utilities\sed;
+          xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
+          sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
+          cd edk2\BaseTools\Source\C\GenBin
+          make
+          xcopy /S edk2\BaseTools\BinWrappers\WindowsLike/GenCrc32 edk2\BaseTools\BinWrappers\WindowsLike\GenBin\
+
+      - name: Patch for Python mod(Use for AppPkg Uefi Python support)
+        if: ${{ matrix.PACKAGE == 'AppPkg' }}
+        run: |-
+          set path=%path%;${{ github.workspace }}\utilities\sed;
+          cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8
+          python srcprep.py
+          cd ${{ github.workspace }}
+          sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
+
+      - name: Customize Patches
+        run: |-
+          set path=%path%;${{ github.workspace }}\utilities\sed;
+          if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
+            REM Remove 5 seconds delay to shell
+            sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
+            REM Remove assert when enable debug mode
+            sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
+            REM Increase more screen buffers
+            sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
+          fi
+          if [ "${{ matrix.PACKAGE }}" = "UefiPayloadPkg" ]; then
+            REM Remove Keyboard self test
+            sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+            sed -i '1736s/Status = KeyboardWaitForValue/\/\/Status = KeyboardWaitForValue/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+            sed -i '1737s/if (EFI_ERROR/\/\/if (EFI_ERROR/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+            sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+            sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+            sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          fi
+
       - name: Build
         shell: cmd
         run: |-
           call ${{ github.workspace }}\vsenv.bat x64
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
+          set WORKSPACE=${{ github.workspace }}
           set PACKAGES_PATH=${{ github.workspace }}/edk2;${{ github.workspace }}/edk2-libc;${{ github.workspace }}/edk2-test;${{ github.workspace }}/edk2-platforms/Silicon/Intel;${{ github.workspace }}/edk2-platforms
           cd ${{ github.workspace }}\edk2
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
