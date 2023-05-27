@@ -39,7 +39,7 @@ jobs:
       - name: Build BaseTools
         shell: cmd
         run: |-
-          call ${{ github.workspace }}\vsenv.bat x86
+          call ${{ github.workspace }}\utilities\vsenv.bat x86
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           cd ${{ github.workspace }}\edk2\BaseTools
           nmake
@@ -92,7 +92,7 @@ jobs:
       - name: Build
         shell: cmd
         run: |-
-          call ${{ github.workspace }}\vsenv.bat x64
+          call ${{ github.workspace }}\utilities\vsenv.bat x64
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set WORKSPACE=${{ github.workspace }}
           set PACKAGES_PATH=${{ github.workspace }}/edk2;${{ github.workspace }}/edk2-libc;${{ github.workspace }}/edk2-test;${{ github.workspace }}/edk2-platforms/Silicon/Intel;${{ github.workspace }}/edk2-platforms
