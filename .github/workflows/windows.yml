@@ -10,16 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'FatPkg',                             PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Features/Ext4Pkg',                   PACKAGE_DSC: 'Ext4Pkg.dsc',        TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Drivers/ASIX',                       PACKAGE_DSC: 'Asix.dsc',           TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg', PACKAGE_DSC: 'DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'OvmfPkg',                            PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
-          { PACKAGE: 'UefiPayloadPkg',                     PACKAGE_DSC: 'UefiPayloadPkg.dsc', TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg',                           PACKAGE_DSC: 'ShellPkg.dsc',       TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'FatPkg',         PACKAGE: 'FatPkg',                             PACKAGE_DSC: 'FatPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg',                   PACKAGE_DSC: 'Ext4Pkg.dsc',        TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ASIXPkg',        PACKAGE: 'Drivers/ASIX',                       PACKAGE_DSC: 'Asix.dsc',           TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg', PACKAGE_DSC: 'DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg',                            PACKAGE_DSC: 'OvmfPkgX64.dsc',     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
         ]
     steps:
       - name: Checkout repositories
@@ -53,3 +51,17 @@ jobs:
           set PACKAGES_PATH=${{ github.workspace }}/edk2;${{ github.workspace }}/edk2-libc;${{ github.workspace }}/edk2-test;${{ github.workspace }}/edk2-platforms/Silicon/Intel;${{ github.workspace }}/edk2-platforms
           cd ${{ github.workspace }}\edk2
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
+            edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
+            edk2-libc/StdLib/Efi/StdLib/etc/
