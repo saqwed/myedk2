@@ -41,7 +41,7 @@ jobs:
         shell: cmd
         run: |-
           call ${{ github.workspace }}\vsenv.bat x86
-          call ${{ github.workspace }}\edk2\edksetup.bat VS2019
+          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           cd ${{ github.workspace }}\edk2\BaseTools
           nmake
 
@@ -49,7 +49,7 @@ jobs:
         shell: cmd
         run: |-
           call ${{ github.workspace }}\vsenv.bat x64
-          call ${{ github.workspace }}\edk2\edksetup.bat VS2019
+          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set PACKAGES_PATH=${{ github.workspace }}/edk2;${{ github.workspace }}/edk2-libc;${{ github.workspace }}/edk2-test;${{ github.workspace }}/edk2-platforms/Silicon/Intel;${{ github.workspace }}/edk2-platforms
           cd ${{ github.workspace }}\edk2
-          build -a IA32 -a X64 -t VS2019 -p OvmfPkg/OvmfPkgIa32X64.dsc -b RELEASE
+          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }}/${{ matrix.PACKAGE_DSC }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
