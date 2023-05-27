@@ -8,8 +8,6 @@ jobs:
     runs-on: windows-2019
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - name: Setup build environment
         shell: cmd
         run: |-
