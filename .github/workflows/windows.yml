@@ -11,14 +11,11 @@ jobs:
       - name: Setup build environment
         shell: cmd
         run: |-
-# Install NASM
           curl -SL --output ${{ github.workspace }}\nasm-2.16.01-win64.zip https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\nasm-2.16.01-win64.zip' -DestinationPath 'c:\'"
           move c:\nasm-2.16.01 c:\nasm
-# Install IASL
           curl -SL --output ${{ github.workspace }}\iasl-win-20230331.zip https://acpica.org/sites/acpica/files/iasl-win-20230331.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20230331.zip' -DestinationPath 'c:\ASL'"
-# Install Visual Studio 2019
           curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
           ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
 
