@@ -45,6 +45,7 @@ jobs:
           nmake
 
       - name: Build/Patch GenBin(Use for SctPkg)
+        shell: cmd
         if: ${{ matrix.NAME == 'SctPkg' }}
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
@@ -55,6 +56,7 @@ jobs:
           xcopy /S edk2\BaseTools\BinWrappers\WindowsLike/GenCrc32 edk2\BaseTools\BinWrappers\WindowsLike\GenBin\
 
       - name: Patch for Python mod(Use for AppPkg Uefi Python support)
+        shell: cmd
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
@@ -64,6 +66,7 @@ jobs:
           sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
 
       - name: Customize Patches for ShellPkg
+        shell: cmd
         if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
@@ -75,6 +78,7 @@ jobs:
           sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
 
       - name: Customize Patches for UefiPayloadPkg
+        shell: cmd
         if: ${{ matrix.NAME == 'UefiPayloadPkg' }}
         run: |-
           REM Remove Keyboard self test
