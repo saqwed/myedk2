@@ -1,4 +1,4 @@
-name: edk2
+name: ubuntu-edk2
 
 on: push
 
