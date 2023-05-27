@@ -76,25 +76,26 @@ jobs:
           pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
           sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
 
-      - name: Customize Patches
+      - name: Customize Patches for ShellPkg
+        if: ${{ matrix.PACKAGE == 'ShellPkg' }}
         run: |-
-          if [ "${{ matrix.PACKAGE }}" = "ShellPkg" ]; then
-            # Remove 5 seconds delay to shell
-            sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
-            # Remove assert when enable debug mode
-            sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
-            # Increase more screen buffers
-            sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
-          fi
-          if [ "${{ matrix.PACKAGE }}" = "UefiPayloadPkg" ]; then
-            # Remove Keyboard self test
-            sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-            sed -i '1736s/Status = KeyboardWaitForValue/\/\/Status = KeyboardWaitForValue/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-            sed -i '1737s/if (EFI_ERROR/\/\/if (EFI_ERROR/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-            sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-            sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-            sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          fi
+          # Remove 5 seconds delay to shell
+          sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
+          # Remove assert when enable debug mode
+          sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
+          # Increase more screen buffers
+          sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
+
+      - name: Customize Patches for UefiPayloadPkg
+        if: ${{ matrix.PACKAGE == 'UefiPayloadPkg' }}
+        run: |-
+          # Remove Keyboard self test
+          sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i '1736s/Status = KeyboardWaitForValue/\/\/Status = KeyboardWaitForValue/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i '1737s/if (EFI_ERROR/\/\/if (EFI_ERROR/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
 
       - name: Build
         run: |-
