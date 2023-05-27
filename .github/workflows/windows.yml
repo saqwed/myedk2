@@ -12,7 +12,7 @@ jobs:
         include: [
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '--pcd gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay=0 --pcd gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount=10' },
           { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
@@ -70,12 +70,8 @@ jobs:
         if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
-          REM Remove 5 seconds delay to shell
-          sed -i "s+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1" edk2/ShellPkg/ShellPkg.dec
           REM Remove assert when enable debug mode
           sed -i "s+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g" edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
-          REM Increase more screen buffers
-          sed -i "/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10" edk2/ShellPkg/ShellPkg.dsc
 
       - name: Customize Patches for UefiPayloadPkg
         shell: cmd
