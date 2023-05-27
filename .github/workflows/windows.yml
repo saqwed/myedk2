@@ -71,11 +71,11 @@ jobs:
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
           REM Remove 5 seconds delay to shell
-          sed -i 's+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1' edk2/ShellPkg/ShellPkg.dec
+          sed -i "s+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1" edk2/ShellPkg/ShellPkg.dec
           REM Remove assert when enable debug mode
-          sed -i 's+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g' edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
+          sed -i "s+ASSERT_EFI_ERROR (Status);+// ASSERT_EFI_ERROR (Status);+g" edk2/ShellPkg/DynamicCommand/TftpDynamicCommand/Tftp.c
           REM Increase more screen buffers
-          sed -i '/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10' edk2/ShellPkg/ShellPkg.dsc
+          sed -i "/\[PcdsFixedAtBuild\]/a gEfiShellPkgTokenSpaceGuid.PcdShellScreenLogCount|10" edk2/ShellPkg/ShellPkg.dsc
 
       - name: Customize Patches for UefiPayloadPkg
         shell: cmd
