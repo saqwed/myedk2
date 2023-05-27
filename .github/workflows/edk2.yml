@@ -6,6 +6,8 @@ jobs:
   windows:
     name: windows
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
       matrix:
         include: [
           { PACKAGE: 'AppPkg',                             PACKAGE_DSC: 'AppPkg.dsc',         TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
