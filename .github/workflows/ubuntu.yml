@@ -64,11 +64,6 @@ jobs:
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
 
-      - name: Patch OpensslLib
-        run: |-
-          cd edk2/CryptoPkg/Library/OpensslLib/
-          perl process_files.pl
-
       - name: Patch for Python mod(Use for AppPkg Uefi Python support)
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
