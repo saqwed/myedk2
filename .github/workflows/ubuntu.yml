@@ -10,17 +10,17 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'ArmVirtPkg',     PACKAGE: 'ArmVirtPkg/ArmVirtQemu.dsc',                            TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
-          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC5',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ArmVirtPkg',     PACKAGE: 'ArmVirtPkg/ArmVirtQemu.dsc',                            TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
         ]
     steps:
       - name: Checkout repositories
@@ -47,10 +47,10 @@ jobs:
 
       - name: Build BaseTools
         run: |-
-          sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
-          sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
-          sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
-          sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC_IA32_PREFIX)objcopy+ENV(GCC_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC_X64_PREFIX)objcopy+ENV(GCC_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC_IA32_PREFIX)gcc+ENV(GCC_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
+          sed -i 's+DEF(GCC_X64_PREFIX)gcc+ENV(GCC_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
           if [ ! -d "edk2/BaseTools/Source/C/bin" ]; then
             make -C edk2/BaseTools
           fi
@@ -93,9 +93,9 @@ jobs:
 
       - name: Build
         run: |-
-          export GCC5_IA32_PREFIX=i686-linux-gnu-
-          export GCC5_X64_PREFIX=x86_64-linux-gnu-
-          export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+          export GCC_IA32_PREFIX=i686-linux-gnu-
+          export GCC_X64_PREFIX=x86_64-linux-gnu-
+          export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=$PWD
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
           export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms

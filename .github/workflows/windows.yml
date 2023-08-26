@@ -118,6 +118,7 @@ jobs:
         if: ${{ matrix.NAME != 'AppPkg' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          retention-days: 14
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
