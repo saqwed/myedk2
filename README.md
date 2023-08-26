@@ -6,9 +6,9 @@ Due to tianocore separates packages into different repositories, pull these repo
 
 # Build instructions
 
-## Ubuntu 20.04 LTS
+## Ubuntu 22.04 LTS
 
-### Setup build environment
+### Setup Ubuntu build environment
 
 - Build environment
 
@@ -75,7 +75,7 @@ build -a X64 -t GCC5 -p ShellPkg/ShellPkg.dsc -b RELEASE
 
 ## Windows + Visual Studio Community 2019
 
-### Setup build environment
+### Setup Windows build environment
 
 - Install Python 3.x
 - Install [Microsoft Visual Studio community 2019](https://aka.ms/vs/16/release/vs_community.exe)
@@ -95,10 +95,15 @@ git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
 
 ```batch
 rem Open "x86 Native Tools Command Prompt for VS 2019" via start menu
+set WORKSPACE=%CD%
+cd %WORKSPACE%\edk2
+edksetup.bat VS2019
 cd %WORKSPACE%\edk2\BaseTools
 toolsetup.bat
 nmake
 ```
+
+Exit this command prompt windows and reopen another one for next steps.
 
 ### Build
 
