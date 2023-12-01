@@ -26,6 +26,8 @@ sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 
 Because Ubuntu distribution still keep NASM version as 2.13.02-0.1(2022/05/28), we have to upgrade NASM by ourselves otherwise you will meet build error.
 
+2023/12/01 Update: You can use apt-get to install NASM now.
+
 ```bash
 sudo add-apt-repository universe
 sudo apt-get update
