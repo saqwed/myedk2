@@ -26,6 +26,8 @@ sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 
 Because Ubuntu distribution still keep NASM version as 2.13.02-0.1(2022/05/28), we have to upgrade NASM by ourselves otherwise you will meet build error.
 
+2023/12/01 Update: You can use apt-get to install NASM now.
+
 ```bash
 sudo add-apt-repository universe
 sudo apt-get update
@@ -48,13 +50,13 @@ git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
 ### (Optional) Patch tools_def.txt for cross compiler
 
 ```bash
-sed -i 's+DEF(GCC5_IA32_PREFIX)objcopy+ENV(GCC5_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
-sed -i 's+DEF(GCC5_X64_PREFIX)objcopy+ENV(GCC5_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
-sed -i 's+DEF(GCC5_IA32_PREFIX)gcc+ENV(GCC5_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
-sed -i 's+DEF(GCC5_X64_PREFIX)gcc+ENV(GCC5_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
-export GCC5_IA32_PREFIX=i686-linux-gnu-
-export GCC5_X64_PREFIX=x86_64-linux-gnu-
-export GCC5_AARCH64_PREFIX=aarch64-linux-gnu-
+sed -i 's+DEF(GCC_IA32_PREFIX)objcopy+ENV(GCC_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
+sed -i 's+DEF(GCC_X64_PREFIX)objcopy+ENV(GCC_X64_PREFIX)objcopy+g'   edk2/BaseTools/Conf/tools_def.template
+sed -i 's+DEF(GCC_IA32_PREFIX)gcc+ENV(GCC_IA32_PREFIX)gcc+g'         edk2/BaseTools/Conf/tools_def.template
+sed -i 's+DEF(GCC_X64_PREFIX)gcc+ENV(GCC_X64_PREFIX)gcc+g'           edk2/BaseTools/Conf/tools_def.template
+export GCC_IA32_PREFIX=i686-linux-gnu-
+export GCC_X64_PREFIX=x86_64-linux-gnu-
+export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
 ```
 
 ### Setup edk2 build environment
@@ -70,7 +72,7 @@ pushd $PWD && cd edk2/CryptoPkg/Library/OpensslLib/ && perl process_files.pl && 
 export WORKSPACE=$PWD
 export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel
 source edk2/edksetup.sh
-build -a X64 -t GCC5 -p ShellPkg/ShellPkg.dsc -b RELEASE
+build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
 
 ## Windows + Visual Studio Community 2019
