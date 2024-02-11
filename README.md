@@ -1,4 +1,5 @@
-![windows badge](https://github.com/saqwed/myedk2/actions/workflows/windows.yml/badge.svg?branch=master)![ubuntu badge](https://github.com/saqwed/myedk2/actions/workflows/ubuntu.yml/badge.svg?branch=master)
+![windows badge](https://github.com/saqwed/myedk2/actions/workflows/windows.yml/badge.svg?branch=master)
+![ubuntu badge](https://github.com/saqwed/myedk2/actions/workflows/ubuntu.yml/badge.svg?branch=master)
 
 Due to tianocore separates packages into different repositories, pull these repositories into submodule and provide GitHub action example for build instruction.
 
@@ -116,3 +117,6 @@ set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%
 edk2\edksetup.bat VS2019
 build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
+
+### Activity
+![Alt](https://repobeats.axiom.co/api/embed/f453d58c114a98896a478023233940d0db153ceb.svg "Repobeats analytics image")
