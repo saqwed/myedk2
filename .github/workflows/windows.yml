@@ -20,7 +20,7 @@ jobs:
         ]
     steps:
       - name: Checkout repositories
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -99,7 +99,7 @@ jobs:
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.NAME == 'AppPkg' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
@@ -115,7 +115,7 @@ jobs:
             edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
             edk2-libc/StdLib/Efi/StdLib/etc/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ matrix.NAME != 'AppPkg' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
