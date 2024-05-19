@@ -1,0 +1,75 @@
+name: ubuntu-edk2-miniplatform
+
+on: push
+
+jobs:
+  linux:
+    name: ubuntu-build
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { NAME: 'BoardMtOlympus' },
+          { NAME: 'BoardX58Ich10' },
+          { NAME: 'BoardX58Ich10X64' },
+          { NAME: 'AspireVn7Dash572G' },
+          { NAME: 'GalagoPro3' },
+          { NAME: 'KabylakeRvp3' },
+          { NAME: 'UpXtreme' },
+          { NAME: 'WhiskeylakeURvp' },
+          { NAME: 'CometlakeURvp' },
+          { NAME: 'TigerlakeURvp' },
+          { NAME: 'WilsonCityRvp' },
+          { NAME: 'BoardTiogaPass' },
+          { NAME: 'JunctionCity' },
+          { NAME: 'Aowanda' },
+          { NAME: 'AlderLakePRvp' },
+        ]
+    steps:
+      - name: Checkout repositories
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup build environment
+        run: |-
+          sudo apt-get update
+          sudo apt-get install -y nasm acpica-tools build-essential crossbuild-essential-i386 crossbuild-essential-amd64 crossbuild-essential-arm64 uuid-dev python3 python3-distutils python3-pip bc gawk llvm-dev lld clang
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+          sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
+
+# https://edk2.groups.io/g/devel/topic/90276518
+      - name: Install nasm 2.15.05
+        run: |-
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install -y wget alien
+          wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+          sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
+          rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
+
+      - name: Build
+        run: |-
+          export GCC_IA32_PREFIX=i686-linux-gnu-
+          export GCC_X64_PREFIX=x86_64-linux-gnu-
+          export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
+          export WORKSPACE=$PWD
+          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms:$WORKSPACE/edk2-no-maintain:$WORKSPACE/ami:$WORKSPACE/SimonPkg:$WORKSPACE/SctPkg:$WORKSPACE/IntelGopTesterTool
+          . edk2/edksetup.sh
+          cd ${{ github.workspace }}/edk2-platforms/Platform/Intel
+          python build_bios.py -p ${{ matrix.NAME }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edk2_intel_miniplatform_${{ matrix.NAME }}_${{ github.sha }}
+          retention-days: 14
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/**/*.map
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
