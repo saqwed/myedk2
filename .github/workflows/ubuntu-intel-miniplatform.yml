@@ -61,9 +61,8 @@ jobs:
           python build_bios.py -p ${{ matrix.NAME }}
 
       - uses: actions/upload-artifact@v4
-        if: ${{ matrix.NAME != 'AppPkg' }}
         with:
-          name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          name: edk2_intel_miniplatform_${{ matrix.NAME }}_${{ github.sha }}
           retention-days: 14
           path: |-
             Build/**/*.efi
