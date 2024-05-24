@@ -1,5 +1,6 @@
 ![windows badge](https://github.com/saqwed/myedk2/actions/workflows/windows.yml/badge.svg?branch=master)
 ![ubuntu badge](https://github.com/saqwed/myedk2/actions/workflows/ubuntu.yml/badge.svg?branch=master)
+![ubuntu-intel-miniplatform badge](https://github.com/saqwed/myedk2/actions/workflows/ubuntu-intel-miniplatform.yml/badge.svg?branch=master)
 
 Due to tianocore separates packages into different repositories, pull these repositories into submodule and provide GitHub action example for build instruction.
 
@@ -23,29 +24,10 @@ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
 sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 ```
 
-- Install NASM 2.15.05(edk2_stable202205 or above)
-
-Because Ubuntu distribution still keep NASM version as 2.13.02-0.1(2022/05/28), we have to upgrade NASM by ourselves otherwise you will meet build error.
-
-2023/12/01 Update: You can use apt-get to install NASM now.
-
-```bash
-sudo add-apt-repository universe
-sudo apt-get update
-sudo apt-get install -y alien
-wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
-rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-```
-
-- [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
-- [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
-- [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
-
 ### Clone repositories
 
 ```bash
-git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
+git clone git@github.com:saqwed/myedk2.git myedk2 --recursive
 ```
 
 ### (Optional) Patch tools_def.txt for cross compiler
@@ -71,7 +53,15 @@ pushd $PWD && cd edk2/CryptoPkg/Library/OpensslLib/ && perl process_files.pl && 
 
 ```bash
 export WORKSPACE=$PWD
-export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel
+ln -s $WORKSPACE/edk2-test/uefi-sct/SctPkg/ $WORKSPACE/SctPkg
+export PACKAGES_PATH=$WORKSPACE/edk2
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Platform/Intel
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Silicon/Intel
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Features/Intel
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-libc
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-test
+export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/SctPkg
 source edk2/edksetup.sh
 build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
@@ -82,7 +72,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 
 - Install Python 3.x
 - Install [Microsoft Visual Studio community 2019](https://aka.ms/vs/16/release/vs_community.exe)
-- Install [NASM 2.15.05](https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip) (edk2_stable202205 or above)
+- Install [NASM 2.16.03](https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip) (edk2_stable202205 or above)
 
   - [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
@@ -91,7 +81,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ### Clone repositories
 
 ```batch
-git clone --recurse-submodule git@github.com:saqwed/myedk2.git myedk2
+git clone git@github.com:saqwed/myedk2.git myedk2 --recursive
 ```
 
 ### Setup edk2 build environment
@@ -114,10 +104,19 @@ Exit this command prompt windows and reopen another one for next steps.
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
-set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%WORKSPACE%/edk2-platforms/Silicon/Intel
+mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
+set PACKAGES_PATH=%WORKSPACE%/edk2
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Silicon/Intel
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Features/Intel
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
+set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 edk2\edksetup.bat VS2019
 build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
 
 ### Activity
+
 ![Alt](https://repobeats.axiom.co/api/embed/f453d58c114a98896a478023233940d0db153ceb.svg "Repobeats analytics image")
