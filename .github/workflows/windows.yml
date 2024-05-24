@@ -90,6 +90,7 @@ jobs:
           call ${{ github.workspace }}\utilities\vsenv.bat x64
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set WORKSPACE=${{ github.workspace }}
+          mklink /D SctPkg edk2-test\uefi-sct\SctPkg
           set PACKAGES_PATH=%WORKSPACE%/edk2
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
