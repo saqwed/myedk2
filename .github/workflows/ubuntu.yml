@@ -35,16 +35,6 @@ jobs:
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
           sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 
-# https://edk2.groups.io/g/devel/topic/90276518
-      - name: Install nasm 2.15.05
-        run: |-
-          sudo add-apt-repository universe
-          sudo apt-get update
-          sudo apt-get install -y wget alien
-          wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-          sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
-          rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-
       - name: Build BaseTools
         run: |-
           sed -i 's+DEF(GCC_IA32_PREFIX)objcopy+ENV(GCC_IA32_PREFIX)objcopy+g' edk2/BaseTools/Conf/tools_def.template
@@ -84,21 +74,17 @@ jobs:
         if: ${{ matrix.NAME == 'UefiPayloadPkg' }}
         run: |-
           # Remove Keyboard self test
-          sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1736s/Status = KeyboardWaitForValue/\/\/Status = KeyboardWaitForValue/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1737s/if (EFI_ERROR/\/\/if (EFI_ERROR/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i "1734s/KeyboardWaitForValue/\/\/KeyboardWaitForValue/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i "1736s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
 
       - name: Build
         run: |-
           export GCC_IA32_PREFIX=i686-linux-gnu-
           export GCC_X64_PREFIX=x86_64-linux-gnu-
           export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
-          export WORKSPACE=$PWD
+          export WORKSPACE=${{ github.workspace }}
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
-          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms
+          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Platform/Intel:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms/Features/Intel:$WORKSPACE/edk2-platforms:$WORKSPACE/edk2-no-maintain:$WORKSPACE/SctPkg
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
@@ -127,6 +113,7 @@ jobs:
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
+            Build/**/*.map
             Build/BUILDLOG*.*
             Build/CI_*.*
             Build/SETUPLOG.*

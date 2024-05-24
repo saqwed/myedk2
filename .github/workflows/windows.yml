@@ -27,11 +27,11 @@ jobs:
       - name: Setup build environment
         shell: cmd
         run: |-
-          curl -SL --output ${{ github.workspace }}\nasm-2.16.01-win64.zip https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/nasm-2.16.01-win64.zip
-          powershell -Command "expand-archive -Path '${{ github.workspace }}\nasm-2.16.01-win64.zip' -DestinationPath 'c:\'"
-          move c:\nasm-2.16.01 c:\nasm
-          curl -SL --output ${{ github.workspace }}\iasl-win-20230628.zip https://downloadmirror.intel.com/783546/iasl-win-20230628.zip
-          powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20230628.zip' -DestinationPath 'c:\ASL'"
+          curl -SL --output ${{ github.workspace }}\nasm-2.16.03-win64.zip https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip
+          powershell -Command "expand-archive -Path '${{ github.workspace }}\nasm-2.16.03-win64.zip' -DestinationPath 'c:\'"
+          move c:\nasm-2.16.03 c:\nasm
+          curl -SL --output ${{ github.workspace }}\iasl-win-20240321.zip https://downloadmirror.intel.com/819464/iasl-win-20240321.zip
+          powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20240321.zip' -DestinationPath 'c:\ASL'"
           curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
           ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
 
@@ -81,12 +81,8 @@ jobs:
         if: ${{ matrix.NAME == 'UefiPayloadPkg' }}
         run: |-
           REM Remove Keyboard self test
-          sed -i '1734s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1736s/Status = KeyboardWaitForValue/\/\/Status = KeyboardWaitForValue/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1737s/if (EFI_ERROR/\/\/if (EFI_ERROR/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1738s/KeyboardError (/\/\/KeyboardError (/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1739s/goto Done/\/\/goto Done/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
-          sed -i '1740s/}/\/\/}/' edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i "1734s/KeyboardWaitForValue/\/\/KeyboardWaitForValue/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
+          sed -i "1736s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
 
       - name: Build
         shell: cmd
@@ -94,8 +90,8 @@ jobs:
           call ${{ github.workspace }}\utilities\vsenv.bat x64
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set WORKSPACE=${{ github.workspace }}
-          set PACKAGES_PATH=${{ github.workspace }}/edk2;${{ github.workspace }}/edk2-libc;${{ github.workspace }}/edk2-test;${{ github.workspace }}/edk2-platforms/Silicon/Intel;${{ github.workspace }}/edk2-platforms
-          cd ${{ github.workspace }}\edk2
+          set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%WORKSPACE%/edk2-platforms/Platform/Intel;%WORKSPACE%/edk2-platforms/Silicon/Intel;%WORKSPACE%/edk2-platforms/Features/Intel;%WORKSPACE%/edk2-platforms;%WORKSPACE%/edk2-no-maintain;%WORKSPACE%/SctPkg;
+          cd %WORKSPACE%\edk2
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
@@ -123,6 +119,7 @@ jobs:
           path: |-
             Build/**/*.efi
             Build/**/FV/*.fd
+            Build/**/*.map
             Build/BUILDLOG*.*
             Build/CI_*.*
             Build/SETUPLOG.*
