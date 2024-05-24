@@ -45,7 +45,14 @@ jobs:
           export GCC_X64_PREFIX=x86_64-linux-gnu-
           export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=${{ github.workspace }}
-          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Platform/Intel:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms/Features/Intel:$WORKSPACE/edk2-platforms:$WORKSPACE/SctPkg
+          export PACKAGES_PATH=$WORKSPACE/edk2
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Platform/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Silicon/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Features/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-libc
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-test
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/SctPkg
           . edk2/edksetup.sh
           cd %WORKSPACE%/edk2-platforms/Platform/Intel
           python build_bios.py -p ${{ matrix.NAME }}

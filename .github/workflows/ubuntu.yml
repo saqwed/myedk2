@@ -84,7 +84,14 @@ jobs:
           export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=${{ github.workspace }}
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
-          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Platform/Intel:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms/Features/Intel:$WORKSPACE/edk2-platforms:$WORKSPACE/SctPkg
+          export PACKAGES_PATH=$WORKSPACE/edk2
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Platform/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Silicon/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Features/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-libc
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-test
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/SctPkg
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 

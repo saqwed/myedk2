@@ -90,7 +90,14 @@ jobs:
           call ${{ github.workspace }}\utilities\vsenv.bat x64
           call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set WORKSPACE=${{ github.workspace }}
-          set PACKAGES_PATH=%WORKSPACE%/edk2;%WORKSPACE%/edk2-libc;%WORKSPACE%/edk2-test;%WORKSPACE%/edk2-platforms/Platform/Intel;%WORKSPACE%/edk2-platforms/Silicon/Intel;%WORKSPACE%/edk2-platforms/Features/Intel;%WORKSPACE%/edk2-platforms;%WORKSPACE%/SctPkg;
+          set PACKAGES_PATH=%WORKSPACE%/edk2
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Silicon/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Features/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
           cd %WORKSPACE%\edk2
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
