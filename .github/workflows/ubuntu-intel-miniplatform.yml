@@ -54,7 +54,7 @@ jobs:
           export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-test
           export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/SctPkg
           . edk2/edksetup.sh
-          cd %WORKSPACE%/edk2-platforms/Platform/Intel
+          cd $WORKSPACE/edk2-platforms/Platform/Intel
           python build_bios.py -p ${{ matrix.NAME }}
 
       - uses: actions/upload-artifact@v4
