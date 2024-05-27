@@ -39,25 +39,22 @@ jobs:
           sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
           sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 
-# https://edk2.groups.io/g/devel/topic/90276518
-      - name: Install nasm 2.15.05
-        run: |-
-          sudo add-apt-repository universe
-          sudo apt-get update
-          sudo apt-get install -y wget alien
-          wget https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/linux/nasm-2.15.05-0.fc31.x86_64.rpm -O/tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-          sudo alien /tmp/nasm-2.15.05-0.fc31.x86_64.rpm -i
-          rm -f /tmp/nasm-2.15.05-0.fc31.x86_64.rpm
-
       - name: Build
         run: |-
           export GCC_IA32_PREFIX=i686-linux-gnu-
           export GCC_X64_PREFIX=x86_64-linux-gnu-
           export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
-          export WORKSPACE=$PWD
-          export PACKAGES_PATH=$WORKSPACE/edk2:$WORKSPACE/edk2-libc:$WORKSPACE/edk2-test:$WORKSPACE/edk2-platforms/Silicon/Intel:$WORKSPACE/edk2-platforms:$WORKSPACE/edk2-no-maintain:$WORKSPACE/ami:$WORKSPACE/SimonPkg:$WORKSPACE/SctPkg:$WORKSPACE/IntelGopTesterTool
+          export WORKSPACE=${{ github.workspace }}
+          export PACKAGES_PATH=$WORKSPACE/edk2
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Platform/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Silicon/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms/Features/Intel
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-libc
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-test
+          export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/SctPkg
           . edk2/edksetup.sh
-          cd ${{ github.workspace }}/edk2-platforms/Platform/Intel
+          cd $WORKSPACE/edk2-platforms/Platform/Intel
           python build_bios.py -p ${{ matrix.NAME }}
 
       - uses: actions/upload-artifact@v4
