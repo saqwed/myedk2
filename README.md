@@ -27,7 +27,7 @@ sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 ### Clone repositories
 
 ```bash
-git clone git@github.com:saqwed/myedk2.git myedk2 --recursive
+git clone https://github.com/saqwed/myedk2.git myedk2 --recursive
 ```
 
 ### (Optional) Patch tools_def.txt for cross compiler
@@ -46,7 +46,6 @@ export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
 
 ```bash
 make -C edk2/BaseTools
-pushd $PWD && cd edk2/CryptoPkg/Library/OpensslLib/ && perl process_files.pl && popd
 ```
 
 ### Build
@@ -81,7 +80,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ### Clone repositories
 
 ```batch
-git clone git@github.com:saqwed/myedk2.git myedk2 --recursive
+git clone https://github.com/saqwed/myedk2.git myedk2 --recursive
 ```
 
 ### Setup edk2 build environment
@@ -116,6 +115,13 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 edk2\edksetup.bat VS2019
 build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
+
+### VSCode Extension - note
+
+- Install [Edk2code](https://marketplace.visualstudio.com/items?itemName=intel-corporation.edk2code) extension
+- Pass `-Y COMPILE_INFO -y BuildReport.log` for the extension requirement.
+- Open **WORKSPACE**, run command `EDK2: Rebuild index database` from the command palette, select `Build` folder.
+  - Detail can be found in [Index source code](https://github.com/intel/Edk2Code/wiki/Index-source-code)
 
 ### Activity
 
