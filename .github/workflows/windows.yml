@@ -99,6 +99,7 @@ jobs:
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
+          set EDK2_LIBC_PATH=%WORKSPACE%/edk2-libc
           cd %WORKSPACE%\edk2
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
