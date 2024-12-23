@@ -64,8 +64,10 @@ jobs:
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
           set path=%path%;${{ github.workspace }}\utilities\sed;
+          pushd %CD%
           cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8
           python srcprep.py
+          popd
           sed -i "s+Build\\\\+%WORKSPACE%\\\\Build\\\\+g" edk2-libc\AppPkg\Applications\Python\Python-3.6.8\create_python_pkg.bat
 
       - name: Customize Patches for ShellPkg
