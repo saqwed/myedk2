@@ -99,6 +99,7 @@ jobs:
       - name: Create Python package
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
+          chmod 700 edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
           edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} $WORKSPACE/Build/Python368
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
