@@ -54,10 +54,11 @@ jobs:
           cp edk2/BaseTools/BinWrappers/PosixLike/GenCrc32 edk2/BaseTools/BinWrappers/PosixLike/GenBin
           chmod a+x edk2/BaseTools/BinWrappers/PosixLike/GenBin
 
-      - name: Patch for Python mod(Use for AppPkg Uefi Python support)
+      - name: Prepare environment for Python EFI
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
           pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
+          sed -i "s|Build/|\$WORKSPACE/Build/|g" edk2-libc\AppPkg\Applications\Python\Python-3.6.8\create_python_pkg.sh
 
       - name: Customize Patches for ShellPkg
         if: ${{ matrix.NAME == 'ShellPkg' }}
@@ -95,6 +96,11 @@ jobs:
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
+      - name: Create Python package
+        if: ${{ matrix.NAME == 'AppPkg' }}
+        run: |-
+          edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} $WORKSPACE/Build/Python368
+
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.NAME == 'AppPkg' }}
@@ -109,8 +115,7 @@ jobs:
             Build/SETUPLOG.*
             Build/UPDATE*.*
             Build/**/AutoGen.*
-            edk2-libc/AppPkg/Applications/Python/Python-3.6.8/Lib/
-            edk2-libc/StdLib/Efi/StdLib/etc/
+            Build/Python368/**
 
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.NAME != 'AppPkg' }}
