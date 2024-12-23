@@ -99,8 +99,10 @@ jobs:
       - name: Create Python package
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
+          export WORKSPACE=${{ github.workspace }}
+          export EDK2_LIBC_PATH=$WORKSPACE/edk2-libc
           chmod 700 edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
-          edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} $WORKSPACE/Build/Python368
+          edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} ${{ github.workspace }}/Build/Python368
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v4

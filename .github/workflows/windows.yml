@@ -111,7 +111,9 @@ jobs:
         shell: cmd
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
-          %WORKSPACE%\edk2-libc\AppPkg\Applications\Python\Python-3.6.8\create_python_pkg.bat ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} %WORKSPACE%\Build\Python368
+          set WORKSPACE=${{ github.workspace }}
+          set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
+          %WORKSPACE%\edk2-libc\AppPkg\Applications\Python\Python-3.6.8\create_python_pkg.bat ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} ${{ github.workspace }}\Build\Python368
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
       - uses: actions/upload-artifact@v4
