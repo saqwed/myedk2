@@ -82,6 +82,7 @@ jobs:
           export GCC_X64_PREFIX=x86_64-linux-gnu-
           export GCC_AARCH64_PREFIX=aarch64-linux-gnu-
           export WORKSPACE=${{ github.workspace }}
+          export EDK2_LIBC_PATH=$WORKSPACE/edk2-libc
           ln -s edk2-test/uefi-sct/SctPkg/ SctPkg
           export PACKAGES_PATH=$WORKSPACE/edk2
           export PACKAGES_PATH=$PACKAGES_PATH:$WORKSPACE/edk2-platforms
