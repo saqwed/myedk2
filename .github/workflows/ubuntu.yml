@@ -10,8 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
           { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'Ext4Pkg',        PACKAGE: 'Features/Ext4Pkg/Ext4Pkg.dsc',                          TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
@@ -58,7 +58,6 @@ jobs:
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
           pushd $PWD && cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8 && python srcprep.py && popd
-          sed -i 's+# AppPkg/Applications/Python/Python-3.6.8/Python368.inf+AppPkg/Applications/Python/Python-3.6.8/Python368.inf+1' edk2-libc/AppPkg/AppPkg.dsc
 
       - name: Customize Patches for ShellPkg
         if: ${{ matrix.NAME == 'ShellPkg' }}
