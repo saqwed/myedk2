@@ -27,7 +27,7 @@ sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 10
 ### Clone repositories
 
 ```bash
-git clone https://github.com/saqwed/myedk2.git myedk2 --recursive
+git clone --recursive -j -1 -v https://github.com/saqwed/myedk2.git myedk2
 ```
 
 ### (Optional) Patch tools_def.txt for cross compiler
@@ -80,7 +80,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ### Clone repositories
 
 ```batch
-git clone https://github.com/saqwed/myedk2.git myedk2 --recursive
+git clone --recursive -j -1 -v https://github.com/saqwed/myedk2.git myedk2
 ```
 
 ### Setup edk2 build environment
