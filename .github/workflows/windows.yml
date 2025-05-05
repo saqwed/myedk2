@@ -17,6 +17,8 @@ jobs:
           { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'SctPkg_UEFI',    PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'SctPkg_IHV',     PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
         ]
     steps:
       - name: Checkout repositories
@@ -55,9 +57,7 @@ jobs:
           set path=%path%;${{ github.workspace }}\utilities\sed;
           xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
-          cd edk2\BaseTools\Source\C\GenBin
-          make
-          xcopy /S edk2\BaseTools\BinWrappers\WindowsLike/GenCrc32 edk2\BaseTools\BinWrappers\WindowsLike\GenBin\
+          nmake
 
       - name: Prepare environment for Python EFI
         shell: cmd

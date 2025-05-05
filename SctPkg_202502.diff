@@ -1,0 +1,743 @@
+diff --git a/uefi-sct/SctPkg/Library/SctLib/Hob.c b/uefi-sct/SctPkg/Library/SctLib/Hob.c
+index 2daf862d..e1cdc89f 100644
+--- a/uefi-sct/SctPkg/Library/SctLib/Hob.c
++++ b/uefi-sct/SctPkg/Library/SctLib/Hob.c
+@@ -385,7 +385,7 @@ Returns:
+ 
+   *BaseAddress  = FirmwareVolumeHob.FirmwareVolume2->BaseAddress;
+   *Length       = FirmwareVolumeHob.FirmwareVolume2->Length;
+-  EfiCommonLibCopyMem(FileName,&FirmwareVolumeHob.FirmwareVolume2->FileName,sizeof(EFI_GUID));
++  SctCopyMem(FileName,&FirmwareVolumeHob.FirmwareVolume2->FileName,sizeof(EFI_GUID));
+ 
+   *HobStart     = GET_NEXT_HOB (FirmwareVolumeHob);
+ 
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Dependency/ValidHiiImage1/ValidHiiImage1.inf b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Dependency/ValidHiiImage1/ValidHiiImage1.inf
+index e0b79870..b73c03ea 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Dependency/ValidHiiImage1/ValidHiiImage1.inf
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Dependency/ValidHiiImage1/ValidHiiImage1.inf
+@@ -41,6 +41,12 @@
+   SampleStrings.uni
+   Sample.vfr
+ 
++[Guids]
++  gTestGenericFailureGuid
++
++[Protocols]
++  gEfiTestProfileLibraryGuid
++
+ [Packages]
+   MdePkg/MdePkg.dec
+   SctPkg/SctPkg.dec
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Misc.c b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Misc.c
+index d75d8061..de8a1c26 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Misc.c
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/BootServices/ImageServices/BlackBoxTest/Misc.c
+@@ -45,7 +45,7 @@ ImageTestCreateInvalidHandle (
+   EFI_HANDLE                  Handle = NULL;
+   EFI_STATUS                  Status;
+ 
+-  Status = gtBS->InstallProtocolInterface (
++  Status = gBS->InstallProtocolInterface (
+                    &Handle,
+                    &mImageTestNoInterfaceProtocol1Guid,
+                    EFI_NATIVE_INTERFACE,
+@@ -77,7 +77,7 @@ ImageTestReleaseInvalidHandle (
+ 
+   ValidHandle = (EFI_HANDLE)((UINT8*)InvalidHandle - 8);
+ 
+-  gtBS->UninstallProtocolInterface (ValidHandle, &mImageTestNoInterfaceProtocol1Guid, NULL);
++  gBS->UninstallProtocolInterface (ValidHandle, &mImageTestNoInterfaceProtocol1Guid, NULL);
+ }
+ 
+ VOID
+@@ -88,7 +88,7 @@ ImageTestCreateNewHandle (
+   EFI_HANDLE                  Handle = NULL;
+   EFI_STATUS                  Status;
+ 
+-  Status = gtBS->InstallProtocolInterface (
++  Status = gBS->InstallProtocolInterface (
+                    &Handle,
+                    &mImageTestNoInterfaceProtocol2Guid,
+                    EFI_NATIVE_INTERFACE,
+@@ -110,7 +110,7 @@ ImageTestReleaseNewHandle (
+     return;
+   }
+ 
+-  gtBS->UninstallProtocolInterface (NewHandle, &mImageTestNoInterfaceProtocol2Guid, NULL);
++  gBS->UninstallProtocolInterface (NewHandle, &mImageTestNoInterfaceProtocol2Guid, NULL);
+ }
+ 
+ BOOLEAN
+@@ -155,7 +155,7 @@ ImageTestLocateNonFilePath (
+ 
+   *IrrelevantFilePath = NULL;
+ 
+-  Status = gtBS->LocateHandleBuffer (
++  Status = gBS->LocateHandleBuffer (
+                    ByProtocol,
+                    &gEfiDevicePathProtocolGuid,
+                    NULL,
+@@ -167,7 +167,7 @@ ImageTestLocateNonFilePath (
+   }
+ 
+   for (Index = 0; Index < NoHandles; Index++) {
+-    gtBS->HandleProtocol (
++    gBS->HandleProtocol (
+             HandleBuffer[Index],
+             &gEfiDevicePathProtocolGuid,
+             (VOID **) &DevicePath
+@@ -179,7 +179,7 @@ ImageTestLocateNonFilePath (
+   }
+ 
+   if (HandleBuffer != NULL) {
+-    gtBS->FreePool (HandleBuffer);
++    gBS->FreePool (HandleBuffer);
+   }
+   return;
+ }
+@@ -213,7 +213,7 @@ ImageTestCreateCombinedNonExistentDevicePath (
+     );
+ 
+ 
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    mImageHandle,
+                    &gEfiLoadedImageProtocolGuid,
+                    (VOID **) &LoadImage
+@@ -223,7 +223,7 @@ ImageTestCreateCombinedNonExistentDevicePath (
+     return;
+   }
+ 
+-  gtBS->HandleProtocol (
++  gBS->HandleProtocol (
+           LoadImage->DeviceHandle,
+           &gEfiDevicePathProtocolGuid,
+           (VOID **) &DevicePath
+@@ -234,7 +234,7 @@ ImageTestCreateCombinedNonExistentDevicePath (
+                                      VendorDevicePath
+                                      );
+ 
+-  gtBS->FreePool (VendorDevicePath);
++  gBS->FreePool (VendorDevicePath);
+ 
+   return;
+ }
+@@ -257,7 +257,7 @@ ImageTestCreateVendorDevicePath (
+   *DevicePath = NULL;
+   Length = sizeof (VENDOR_DEVICE_PATH) + sizeof (EFI_DEVICE_PATH_PROTOCOL);
+ 
+-  Status = gtBS->AllocatePool (
++  Status = gBS->AllocatePool (
+                    EfiBootServicesData,
+                    Length,
+                    (VOID**)DevicePath
+@@ -271,7 +271,7 @@ ImageTestCreateVendorDevicePath (
+ 
+   DevPointer = *DevicePath;
+ 
+-  gtBS->CopyMem (DevPointer, DevicePathNode, sizeof (VENDOR_DEVICE_PATH));
++  gBS->CopyMem (DevPointer, DevicePathNode, sizeof (VENDOR_DEVICE_PATH));
+ 
+   //
+   // points to next node
+@@ -285,7 +285,7 @@ ImageTestCreateVendorDevicePath (
+   //
+   // release resource
+   //
+-  gtBS->FreePool (DevicePathNode);
++  gBS->FreePool (DevicePathNode);
+ 
+   return;
+ }
+@@ -311,7 +311,7 @@ ImageTestCreateVendorDevicePathNode (
+   *DevicePath = NULL;
+   Length = sizeof (VENDOR_DEVICE_PATH);
+ 
+-  Status = gtBS->AllocatePool (
++  Status = gBS->AllocatePool (
+                    EfiBootServicesData,
+                    Length,
+                    (VOID**)DevicePath
+@@ -332,8 +332,8 @@ ImageTestCreateVendorDevicePathNode (
+   VendorDevicePathNode.Header.SubType = HW_VENDOR_DP;
+   VendorDevicePathNode.Header.Length[0] = sizeof (VENDOR_DEVICE_PATH);
+   VendorDevicePathNode.Header.Length[1] = 0;
+-  gtBS->CopyMem (&VendorDevicePathNode.Guid, &Guid, sizeof (EFI_GUID));
+-  gtBS->CopyMem (DevPointer, &VendorDevicePathNode, sizeof (VENDOR_DEVICE_PATH));
++  gBS->CopyMem (&VendorDevicePathNode.Guid, &Guid, sizeof (EFI_GUID));
++  gBS->CopyMem (DevPointer, &VendorDevicePathNode, sizeof (VENDOR_DEVICE_PATH));
+ 
+   return;
+ }
+@@ -351,7 +351,7 @@ ImageTestRetrieveCurrentMapKey (
+   EFI_MEMORY_DESCRIPTOR         Temp;
+ 
+   MemoryMapSize = 1;
+-  Status = gtBS->GetMemoryMap (
++  Status = gBS->GetMemoryMap (
+                     &MemoryMapSize,
+                     &Temp,
+                     MapKey,
+@@ -363,7 +363,7 @@ ImageTestRetrieveCurrentMapKey (
+   }
+ 
+   MemoryMapSize *= 2;
+-  Status = gtBS->AllocatePool (
++  Status = gBS->AllocatePool (
+                    EfiBootServicesData,
+                    MemoryMapSize,
+                    (VOID**)&MemoryMap
+@@ -372,7 +372,7 @@ ImageTestRetrieveCurrentMapKey (
+     return Status;
+   }
+ 
+-  Status = gtBS->GetMemoryMap (
++  Status = gBS->GetMemoryMap (
+                     &MemoryMapSize,
+                     MemoryMap,
+                     MapKey,
+@@ -380,7 +380,7 @@ ImageTestRetrieveCurrentMapKey (
+                     &DescriptorVersion
+                     );
+ 
+-  gtBS->FreePool (MemoryMap);
++  gBS->FreePool (MemoryMap);
+ 
+   return Status;
+ }
+@@ -407,7 +407,7 @@ ImageTestComposeSimpleFilePath (
+   EFI_DEVICE_PATH_PROTOCOL            *DevicePath;
+   EFI_TEST_PROFILE_LIBRARY_PROTOCOL  *ProfileLib;
+ 
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    CurrentImageHandle,
+                    &gEfiLoadedImageProtocolGuid,
+                    (VOID **) &LoadImage
+@@ -433,7 +433,7 @@ ImageTestComposeSimpleFilePath (
+   // dependent on the implementation of test framework. So need to be updated
+   // later.
+   //
+-  Status = gtBS->LocateProtocol (
++  Status = gBS->LocateProtocol (
+                    &gEfiTestProfileLibraryGuid,
+                    NULL,
+                    (VOID **) &ProfileLib
+@@ -458,9 +458,9 @@ ImageTestComposeSimpleFilePath (
+ 
+   *FilePath = SctFileDevicePath (LoadImage->DeviceHandle, EntireFileName);
+ 
+-  gtBS->FreePool (EntireFileName);
+-  gtBS->FreePool (FileNamePath);
+-  gtBS->FreePool (DevicePath);
++  gBS->FreePool (EntireFileName);
++  gBS->FreePool (FileNamePath);
++  gBS->FreePool (DevicePath);
+ 
+   if (*FilePath == NULL) {
+     return EFI_OUT_OF_RESOURCES;
+@@ -496,7 +496,7 @@ ImageTestCopySimpleFileToMemory (
+   *SourceBuffer = NULL;
+   EntireFileName = NULL;
+ 
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    CurrentImageHandle,
+                    &gEfiLoadedImageProtocolGuid,
+                    (VOID **) &LoadImage
+@@ -520,7 +520,7 @@ ImageTestCopySimpleFileToMemory (
+   //
+   // locate simple file system on the LoadImage->DeviceHandle
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    LoadImage->DeviceHandle,
+                    &gEfiSimpleFileSystemProtocolGuid,
+                    (VOID **) &Volume
+@@ -581,7 +581,7 @@ ImageTestCopySimpleFileToMemory (
+                          &Temp
+                          );
+   if (Status == EFI_BUFFER_TOO_SMALL) {
+-    Status = gtBS->AllocatePool (EfiBootServicesData, InfoSize, (VOID**)&InfoBuffer);
++    Status = gBS->AllocatePool (EfiBootServicesData, InfoSize, (VOID**)&InfoBuffer);
+ 
+     if (!EFI_ERROR(Status)) {
+ 
+@@ -612,7 +612,7 @@ ImageTestCopySimpleFileToMemory (
+ 
+   *SourceBufferSize = (UINTN)InfoBuffer->FileSize;
+ 
+-  Status = gtBS->AllocatePool (EfiBootServicesData, *SourceBufferSize, (VOID**)SourceBuffer);
++  Status = gBS->AllocatePool (EfiBootServicesData, *SourceBufferSize, (VOID**)SourceBuffer);
+   if (EFI_ERROR(Status)) {
+     if (StandardLib != NULL) {
+       StandardLib->RecordAssertion (
+@@ -655,7 +655,7 @@ Done:
+   // release resource
+   //
+   if (EntireFileName != NULL) {
+-    gtBS->FreePool (EntireFileName);
++    gBS->FreePool (EntireFileName);
+   }
+ 
+   if (FileHandle != NULL) {
+@@ -667,7 +667,7 @@ Done:
+   }
+ 
+   if (InfoBuffer != NULL) {
+-    gtBS->FreePool (InfoBuffer);
++    gBS->FreePool (InfoBuffer);
+   }
+ 
+   return Status;
+@@ -706,7 +706,7 @@ ImageTestNotifyFunctionForCombinationTest1 (
+   for (Index = 0; Index < 10; Index++) {
+ 
+     HandleBuffer = NULL;
+-    Status = gtBS->LocateHandleBuffer (
++    Status = gBS->LocateHandleBuffer (
+                      ByRegisterNotify,
+                      NULL,
+                      NotifyContextArray[Index].Registration,
+@@ -714,7 +714,7 @@ ImageTestNotifyFunctionForCombinationTest1 (
+                      &HandleBuffer
+                      );
+     if (HandleBuffer != NULL) {
+-      gtBS->FreePool (HandleBuffer);
++      gBS->FreePool (HandleBuffer);
+     }
+ 
+     if ((EFI_SUCCESS == Status) && (NoHandles == 1)) {
+@@ -740,7 +740,7 @@ ImageTestAliasLocateHandleBuffer (
+   NoHandles = 0;
+   HandleBuffer = NULL;
+ 
+-  Status = gtBS->LocateHandleBuffer (
++  Status = gBS->LocateHandleBuffer (
+                    ByProtocol,
+                    Guid,
+                    NULL,
+@@ -748,7 +748,7 @@ ImageTestAliasLocateHandleBuffer (
+                    &HandleBuffer
+                    );
+   if (HandleBuffer != NULL) {
+-    gtBS->FreePool (HandleBuffer);
++    gBS->FreePool (HandleBuffer);
+   }
+ 
+   return Status;
+@@ -889,7 +889,7 @@ GetImageDevicePath (
+   //
+   // Get the image instance from the image handle
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    ImageHandle,
+                    &gEfiLoadedImageProtocolGuid,
+                    (VOID **) &Image
+@@ -901,7 +901,7 @@ GetImageDevicePath (
+   //
+   // Get the device instance from the device handle
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                    Image->DeviceHandle,
+                    &gEfiDevicePathProtocolGuid,
+                    (VOID **) &TempDevicePath
+@@ -931,10 +931,10 @@ GetImageDevicePath (
+     TempDeviceNode = SctNextDevicePathNode (TempDeviceNode);
+   }
+ 
+-  gtBS->FreePool (TempDevicePath);
++  gBS->FreePool (TempDevicePath);
+ 
+   if (TempFilePath == NULL) {
+-    gtBS->FreePool (*DevicePath);
++    gBS->FreePool (*DevicePath);
+     return EFI_NOT_FOUND;
+   }
+ 
+@@ -973,8 +973,8 @@ InitializeGlobalData (
+   EFI_DEVICE_PATH_PROTOCOL            *DevicePath;
+   CHAR16                              *FilePath;
+ 
+-  Status = gtBS -> HandleProtocol (mImageHandle, &G2, (VOID **) &LoadedImage);
+-  Status = gtBS -> HandleProtocol (LoadedImage->DeviceHandle, &G1, (VOID **) &Vol);
++  Status = gBS -> HandleProtocol (mImageHandle, &G2, (VOID **) &LoadedImage);
++  Status = gBS -> HandleProtocol (LoadedImage->DeviceHandle, &G1, (VOID **) &Vol);
+ 
+   Status = Vol -> OpenVolume (Vol, &RootFs);
+ 
+@@ -995,7 +995,7 @@ InitializeGlobalData (
+   // dependent on the implementation of test framework. So need to be updated
+   // later.
+   //
+-  Status = gtBS->LocateProtocol (
++  Status = gBS->LocateProtocol (
+                    &gEfiTestProfileLibraryGuid,
+                    NULL,
+                    (VOID **) &ProfileLib
+@@ -1075,7 +1075,7 @@ StartLoadFileTestDriver (
+   //
+   // Load the driver
+   //
+-  Status = gtBS->LoadImage (
++  Status = gBS->LoadImage (
+                    FALSE,
+                    mImageHandle,
+                    FilePath,
+@@ -1087,7 +1087,7 @@ StartLoadFileTestDriver (
+     goto ErrorExit;
+   }
+ 
+-  Status = gtBS->StartImage (ImageHandle, NULL, NULL);
++  Status = gBS->StartImage (ImageHandle, NULL, NULL);
+   if (EFI_ERROR (Status)) {
+     goto ErrorExit;
+   }
+@@ -1095,7 +1095,7 @@ StartLoadFileTestDriver (
+   //
+   // Create a handle that the driver support
+   //
+-  Status = gtBS->InstallMultipleProtocolInterfaces (
++  Status = gBS->InstallMultipleProtocolInterfaces (
+                    &Handle,
+                    &mImageTestForLoadFileProtocol1Guid,
+                    NULL,
+@@ -1110,7 +1110,7 @@ StartLoadFileTestDriver (
+   //
+   HandleList[0] = ImageHandle;
+   HandleList[1] = 0;
+-  Status = gtBS->ConnectController (
++  Status = gBS->ConnectController (
+                    Handle,
+                    HandleList,
+                    mLoadFileDevicePath,
+@@ -1124,7 +1124,7 @@ StartLoadFileTestDriver (
+ ErrorExit:
+ 
+   if (Handle != NULL) {
+-    gtBS->UninstallMultipleProtocolInterfaces (
++    gBS->UninstallMultipleProtocolInterfaces (
+             Handle,
+             &mImageTestForLoadFileProtocol1Guid,
+             NULL,
+@@ -1133,11 +1133,11 @@ ErrorExit:
+   }
+ 
+   if (ImageHandle != NULL) {
+-    gtBS->UnloadImage (ImageHandle);
++    gBS->UnloadImage (ImageHandle);
+   }
+ 
+   if (FilePath != NULL) {
+-    gtBS->FreePool (FilePath);
++    gBS->FreePool (FilePath);
+   }
+ 
+   return Status;
+@@ -1161,7 +1161,7 @@ StopLoadFileTestDriver (
+   //
+   // locate the handle
+   //
+-  Status = gtBS->LocateHandleBuffer (
++  Status = gBS->LocateHandleBuffer (
+                    ByProtocol,
+                    &mImageTestForLoadFileProtocol1Guid,
+                    NULL,
+@@ -1176,9 +1176,9 @@ StopLoadFileTestDriver (
+     //
+     // disconnect the handle from the LOAD_FILE driver
+     //
+-    gtBS->DisconnectController (HandleBuffer[Index], NULL, NULL);
++    gBS->DisconnectController (HandleBuffer[Index], NULL, NULL);
+ 
+-    gtBS->UninstallProtocolInterface (
++    gBS->UninstallProtocolInterface (
+             HandleBuffer[Index],
+             &mImageTestForLoadFileProtocol1Guid,
+             NULL
+@@ -1188,7 +1188,7 @@ StopLoadFileTestDriver (
+   //
+   // unload image
+   //
+-  gtBS->UnloadImage (DriverImageHandle);
++  gBS->UnloadImage (DriverImageHandle);
+ 
+   return;
+ }
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestFunction.c b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestFunction.c
+index 7a473103..8bd3740d 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestFunction.c
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestFunction.c
+@@ -68,7 +68,7 @@ BBTestGetInformationFunctionTest (
+   EFI_STANDARD_TEST_LIBRARY_PROTOCOL    *StandardLib;
+   EFI_STATUS                            Status;
+   EFI_ADAPTER_INFORMATION_PROTOCOL      *AdapterInfo;
+-  UINT16                                *DevicePathStr;
++  UINT16                                *DevicePathStr;
+   //
+   // init
+   //
+@@ -77,7 +77,7 @@ BBTestGetInformationFunctionTest (
+   //
+   // Get the Standard Library Interface
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                      SupportHandle,
+                      &gEfiStandardTestLibraryGuid,
+                      (VOID **) &StandardLib
+@@ -85,13 +85,13 @@ BBTestGetInformationFunctionTest (
+   if ( EFI_ERROR(Status) ) {
+     return Status;
+   }
+-  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
+-  StandardLib->RecordMessage (
+-                StandardLib,
+-                EFI_VERBOSE_LEVEL_DEFAULT,
+-                L"Device Path: %s\r\n",
+-                DevicePathStr
+-                );
++  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
++  StandardLib->RecordMessage (
++                StandardLib,
++                EFI_VERBOSE_LEVEL_DEFAULT,
++                L"Device Path: %s\r\n",
++                DevicePathStr
++                );
+   //
+   //Call check points
+   //
+@@ -114,7 +114,7 @@ BBTestSetInformationFunctionTest (
+   EFI_STANDARD_TEST_LIBRARY_PROTOCOL    *StandardLib;
+   EFI_STATUS                            Status;
+   EFI_ADAPTER_INFORMATION_PROTOCOL      *AdapterInfo;
+-  UINT16                                *DevicePathStr;
++  UINT16                                *DevicePathStr;
+   //
+   // init
+   //
+@@ -123,7 +123,7 @@ BBTestSetInformationFunctionTest (
+   //
+   // Get the Standard Library Interface
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                      SupportHandle,
+                      &gEfiStandardTestLibraryGuid,
+                      (VOID **) &StandardLib
+@@ -131,13 +131,13 @@ BBTestSetInformationFunctionTest (
+   if ( EFI_ERROR(Status) ) {
+     return Status;
+   }
+-  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
+-  StandardLib->RecordMessage (
+-                StandardLib,
+-                EFI_VERBOSE_LEVEL_DEFAULT,
+-                L"Device Path: %s\r\n",
+-                DevicePathStr
+-                );
++  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
++  StandardLib->RecordMessage (
++                StandardLib,
++                EFI_VERBOSE_LEVEL_DEFAULT,
++                L"Device Path: %s\r\n",
++                DevicePathStr
++                );
+   //
+   //Call check points
+   //
+@@ -159,7 +159,7 @@ BBTestGetSupportedTypesFunctionTest (
+   EFI_STANDARD_TEST_LIBRARY_PROTOCOL    *StandardLib;
+   EFI_STATUS                            Status;
+   EFI_ADAPTER_INFORMATION_PROTOCOL      *AdapterInfo;
+-  UINT16                                *DevicePathStr;
++  UINT16                                *DevicePathStr;
+ 
+   //
+   // init
+@@ -169,7 +169,7 @@ BBTestGetSupportedTypesFunctionTest (
+   //
+   // Get the Standard Library Interface
+   //
+-  Status = gtBS->HandleProtocol (
++  Status = gBS->HandleProtocol (
+                      SupportHandle,
+                      &gEfiStandardTestLibraryGuid,
+                      (VOID **) &StandardLib
+@@ -177,13 +177,13 @@ BBTestGetSupportedTypesFunctionTest (
+   if ( EFI_ERROR(Status) ) {
+     return Status;
+   }
+-  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
+-  StandardLib->RecordMessage (
+-                StandardLib,
+-                EFI_VERBOSE_LEVEL_DEFAULT,
+-                L"Device Path: %s\r\n",
+-                DevicePathStr
+-                );
++  DevicePathStr = SctDevicePathStrFromProtocol (AdapterInfo, &gEfiAdapterInformationProtocolGuid);
++  StandardLib->RecordMessage (
++                StandardLib,
++                EFI_VERBOSE_LEVEL_DEFAULT,
++                L"Device Path: %s\r\n",
++                DevicePathStr
++                );
+   //
+   //Call check points
+   //
+@@ -225,7 +225,7 @@ BBTestGetInformationFunctionTestCheckpoint1 (
+   
+   if ( EFI_SUCCESS != Status || InfoTypesBuffer == NULL ) {
+     if (  InfoTypesBuffer != NULL ){
+-      gtBS->FreePool ( InfoTypesBuffer );
++      gBS->FreePool ( InfoTypesBuffer );
+       InfoTypesBuffer = NULL;
+     }
+ 
+@@ -287,14 +287,14 @@ BBTestGetInformationFunctionTestCheckpoint1 (
+                      );
+     
+     if ( InformationBlock != NULL ){
+-      gtBS->FreePool (InformationBlock);
++      gBS->FreePool (InformationBlock);
+       InformationBlock = NULL;
+     }
+     InformationType++;
+   }
+   
+   if (  InfoTypesBuffer != NULL ){
+-    gtBS->FreePool ( InfoTypesBuffer );
++    gBS->FreePool ( InfoTypesBuffer );
+     InfoTypesBuffer = NULL;
+   }
+   
+@@ -336,7 +336,7 @@ BBTestSetInformationFunctionTestCheckpoint1 (
+   
+   if ( EFI_SUCCESS != Status || InfoTypesBuffer == NULL ) {
+     if ( InfoTypesBuffer != NULL ){
+-      gtBS->FreePool ( InfoTypesBuffer );
++      gBS->FreePool ( InfoTypesBuffer );
+       InfoTypesBuffer = NULL;
+     }
+ 
+@@ -366,12 +366,12 @@ BBTestSetInformationFunctionTestCheckpoint1 (
+     if ( EFI_SUCCESS != Status || InformationBlockGet1 == NULL ) {
+ 
+       if ( InformationBlockGet1 != NULL ) {
+-        gtBS->FreePool (InformationBlockGet1);
++        gBS->FreePool (InformationBlockGet1);
+         InformationBlockGet1 = NULL;
+       }
+ 
+       if (  InfoTypesBuffer != NULL ){
+-        gtBS->FreePool ( InfoTypesBuffer );
++        gBS->FreePool ( InfoTypesBuffer );
+         InfoTypesBuffer = NULL;
+       }
+ 
+@@ -416,12 +416,12 @@ BBTestSetInformationFunctionTestCheckpoint1 (
+ 
+     if (AssertionType == EFI_TEST_ASSERTION_FAILED ){
+       if ( InformationBlockGet1 != NULL ) {
+-        gtBS->FreePool (InformationBlockGet1);
++        gBS->FreePool (InformationBlockGet1);
+         InformationBlockGet1 = NULL;
+       }
+ 
+       if (  InfoTypesBuffer != NULL ){
+-        gtBS->FreePool ( InfoTypesBuffer );
++        gBS->FreePool ( InfoTypesBuffer );
+         InfoTypesBuffer = NULL;
+       }
+       return Status;
+@@ -465,12 +465,12 @@ BBTestSetInformationFunctionTestCheckpoint1 (
+                        );
+       
+       if ( InformationBlockGet1 != NULL ) {
+-        gtBS->FreePool (InformationBlockGet1);
++        gBS->FreePool (InformationBlockGet1);
+         InformationBlockGet1 = NULL;
+       }
+     
+       if ( InformationBlockGet2 != NULL ) {
+-        gtBS->FreePool (InformationBlockGet2);
++        gBS->FreePool (InformationBlockGet2);
+         InformationBlockGet2 = NULL;
+       }
+     }  
+@@ -479,7 +479,7 @@ BBTestSetInformationFunctionTestCheckpoint1 (
+   }
+   
+   if (  InfoTypesBuffer != NULL ){
+-    gtBS->FreePool ( InfoTypesBuffer );
++    gBS->FreePool ( InfoTypesBuffer );
+     InfoTypesBuffer = NULL;
+   }
+   
+@@ -560,7 +560,7 @@ BBTestGetSupportedTypesFunctionTestCheckpoint1 (
+                    );  
+ 
+   if(InfoTypesBuffer != NULL){
+-    gtBS->FreePool(InfoTypesBuffer);
++    gBS->FreePool(InfoTypesBuffer);
+     InfoTypesBuffer = NULL;
+   }
+   return EFI_SUCCESS;
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestMain.h b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestMain.h
+index 9952fbca..2f85a77b 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestMain.h
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/AdapterInfo/BlackBoxTest/AdapterInfoBBTestMain.h
+@@ -31,6 +31,7 @@ Abstract:
+ #include <Library/EfiTestLib.h>
+ #include <UEFI/Protocol/AdapterInfo.h>
+ #include "Guid.h"
++#include "SctLib.h"
+ 
+ 
+ #define EFI_ADAPTER_INFORMATION_PROTOCOL_TEST_REVISION    0x00010000
+@@ -161,11 +162,11 @@ BBTestGetSupportedTypesFunctionTest (
+   );
+ 
+ 
+-VOID
+-SctInitializeLib (
+-  IN EFI_HANDLE                 ImageHandle,
+-  IN EFI_SYSTEM_TABLE           *SystemTable
+-  );
++// VOID
++// SctInitializeLib (
++//   IN EFI_HANDLE                 ImageHandle,
++//   IN EFI_SYSTEM_TABLE           *SystemTable
++//   );
+ 
+ 
+ #endif
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/SimpleFileSystem/BlackBoxTest/SimpleFileSystemBBTest.inf b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/SimpleFileSystem/BlackBoxTest/SimpleFileSystemBBTest.inf
+index a76c9e5a..709a584c 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/SimpleFileSystem/BlackBoxTest/SimpleFileSystemBBTest.inf
++++ b/uefi-sct/SctPkg/TestCase/UEFI/EFI/Protocol/SimpleFileSystem/BlackBoxTest/SimpleFileSystemBBTest.inf
+@@ -62,3 +62,7 @@ ENTRY_POINT          = InitializeBBTestSimpleFileSystem
+   gBlackBoxEfiFileSystemVolumeLabelInfoIdGuid
+ 
+ [Protocols]
++  gBlackBoxEfiDevicePathProtocolGuid
++  gBlackBoxEfiSimpleFileSystemProtocolGuid
++  gBlackBoxEfiBlockIoProtocolGuid
++
+diff --git a/uefi-sct/SctPkg/TestCase/UEFI/IHV/Protocol/SimpleFileSystem/BlackBoxTest/IhvSimpleFileSystemBBTest.inf b/uefi-sct/SctPkg/TestCase/UEFI/IHV/Protocol/SimpleFileSystem/BlackBoxTest/IhvSimpleFileSystemBBTest.inf
+index 778d1cc5..82378413 100644
+--- a/uefi-sct/SctPkg/TestCase/UEFI/IHV/Protocol/SimpleFileSystem/BlackBoxTest/IhvSimpleFileSystemBBTest.inf
++++ b/uefi-sct/SctPkg/TestCase/UEFI/IHV/Protocol/SimpleFileSystem/BlackBoxTest/IhvSimpleFileSystemBBTest.inf
+@@ -63,6 +63,7 @@ ENTRY_POINT          = InitializeBBTestSimpleFileSystem
+   gBlackBoxEfiFileSystemInfoGuid
+   gBlackBoxEfiFileSystemVolumeLabelInfoIdGuid
+ 
+-[Protocols]
+-
+-
++  [Protocols]
++  gBlackBoxEfiDevicePathProtocolGuid
++  gBlackBoxEfiSimpleFileSystemProtocolGuid
++  gBlackBoxEfiBlockIoProtocolGuid
