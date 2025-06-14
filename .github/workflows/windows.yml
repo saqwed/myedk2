@@ -57,9 +57,11 @@ jobs:
           set path=%path%;${{ github.workspace }}\utilities\sed;
           xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
+          call ${{ github.workspace }}\utilities\vsenv.bat x86
+          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           cd ${{ github.workspace }}\edk2\BaseTools\Source\C\GenBin
           nmake
-          xcopy /S edk2\BaseTools\BinWrappers\WindowsLike\GenFds.bat edk2\BaseTools\BinWrappers\WindowsLike\GenBin.bat
+          copy ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenFds.bat ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenBin.bat
           cd ${{ github.workspace }}\edk2-test
           git fetch origin pull/265/head:pr-265
           git checkout pr-265
