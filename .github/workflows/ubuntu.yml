@@ -21,6 +21,8 @@ jobs:
           { NAME: 'ArmVirtPkg',     PACKAGE: 'ArmVirtPkg/ArmVirtQemu.dsc',                            TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
           { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
+          { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
         ]
     steps:
       - name: Checkout repositories
@@ -46,7 +48,7 @@ jobs:
           fi
 
       - name: Build/Patch GenBin(Use for SctPkg)
-        if: ${{ matrix.NAME == 'SctPkg' }}
+        if: ${{ matrix.NAME == 'UefiSct' || matrix.NAME == 'IhvSct' }}
         run: |-
           cp -R edk2-test/uefi-sct/SctPkg/Tools/Source/GenBin edk2/BaseTools/Source/C/GenBin
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
@@ -96,6 +98,18 @@ jobs:
           . edk2/edksetup.sh
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
+      - name: Create UefiSct packages
+        if: ${{ matrix.NAME == 'UefiSct' }}
+        run: |-
+          cd ${{ github.workspace }}/Build/UefiSct/${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
+          ../../../SctPkg\CommonGenFramework.bat uefi_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
+
+      - name: Create IhvSct packages
+        if: ${{ matrix.NAME == 'IhvSct' }}
+        run: |-
+          cd ${{ github.workspace }}/Build/IhvSct/${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
+          ../../../SctPkg/CommonGenFramework.bat ihv_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
+
       - name: Create Python package
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
@@ -121,7 +135,22 @@ jobs:
             Build/Python368/**
 
       - uses: actions/upload-artifact@v4
-        if: ${{ matrix.NAME != 'AppPkg' }}
+        if: ${{ matrix.NAME == 'UefiSct' || matrix.NAME == 'IhvSct' }}
+        with:
+          name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
+          retention-days: 14
+          path: |-
+            Build/**/*.efi
+            Build/**/FV/*.fd
+            Build/BUILDLOG*.*
+            Build/CI_*.*
+            Build/SETUPLOG.*
+            Build/UPDATE*.*
+            Build/**/AutoGen.*
+            Build/**/SctPackageX64/*.*
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ matrix.NAME != 'AppPkg' && matrix.NAME != 'UefiSct' && matrix.NAME != 'IhvSct' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
           retention-days: 14
