@@ -21,8 +21,8 @@ jobs:
           { NAME: 'ArmVirtPkg',     PACKAGE: 'ArmVirtPkg/ArmVirtQemu.dsc',                            TARGET: 'RELEASE', ARCH: 'AARCH64', TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
           { NAME: 'UefiPayloadPkg', PACKAGE: 'UefiPayloadPkg/UefiPayloadPkg.dsc',                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '-D BOOTLOADER=COREBOOT -D PS2_KEYBOARD_ENABLE=TRUE -D SIO_BUS_ENABLE=TRUE' },
-          { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'GCC',       ADDITIONAL_DEFINITION: '' },
         ]
     steps:
       - name: Checkout repositories
