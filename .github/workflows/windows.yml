@@ -62,9 +62,6 @@ jobs:
           cd ${{ github.workspace }}\edk2\BaseTools\Source\C\GenBin
           nmake
           copy ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenFds.bat ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenBin.bat
-          cd ${{ github.workspace }}\edk2-test
-          git fetch origin pull/265/head:pr-265
-          git checkout pr-265
 
       - name: Prepare environment for Python EFI
         shell: cmd
