@@ -5,7 +5,7 @@ on: push
 jobs:
   windows:
     name: windows-build
-    runs-on: windows-2019
+    runs-on: windows-2025
     strategy:
       fail-fast: false
       matrix:
@@ -45,10 +45,9 @@ jobs:
       - name: Build BaseTools
         shell: cmd
         run: |-
-          call ${{ github.workspace }}\utilities\vsenv.bat x86
-          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
-          cd ${{ github.workspace }}\edk2\BaseTools
-          nmake
+          set WORKSPACE=${{ github.workspace }}
+          set PACKAGES_PATH=%WORKSPACE%\edk2
+          %WORKSPACE%\edk2\edksetup.bat ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
         shell: cmd
