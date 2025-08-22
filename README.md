@@ -76,7 +76,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
   - [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
 - Install Chocolatey
-  - Following offical web page to install it
+  - Following official web page to install it
     - `Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))`
 - Install mingw and llvm
   - `choco install mingw llvm`
@@ -104,7 +104,7 @@ set WORKSPACE=%CD%
 set HOST_ARCH=X64
 set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
 set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
-set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
 REM Need to use sed and awk, you can download them in utilities directory
 sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
 sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
