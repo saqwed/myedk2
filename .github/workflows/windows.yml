@@ -13,10 +13,12 @@ jobs:
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
           { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
           { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'CLANGPDB',     ADDITIONAL_DEFINITION: '' },
           { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'CLANGPDB',     ADDITIONAL_DEFINITION: '' },
           { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
         ]
@@ -39,34 +41,60 @@ jobs:
           move c:\nasm-2.16.03 c:\nasm
           curl -SL --output ${{ github.workspace }}\iasl-win-20240321.zip https://downloadmirror.intel.com/819464/iasl-win-20240321.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20240321.zip' -DestinationPath 'c:\ASL'"
+
+      - name: Setup VS2019 build environment
+        if: ${{ matrix.TOOLCHAIN == 'VS2019' }}
+        shell: cmd
+        run: |-
           curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
           ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
 
-      - name: Build BaseTools
+      - name: Setup CLANG build environment
+        if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
+        run: |-
+          choco install mingw llvm
+
+      - name: Build BaseTools with VS2019
+        if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
           set PACKAGES_PATH=%WORKSPACE%\edk2
           %WORKSPACE%\edk2\edksetup.bat ForceRebuild
 
+      - name: Build BaseTools with CLANG
+        if: ${{ matrix.TOOLCHAIN == 'CLANG' }}
+        shell: cmd
+        run: |-
+          set WORKSPACE=${{ github.workspace }}
+          set HOST_ARCH=X64
+          set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
+          set path=%path%;%WORKSPACE%\utilities\sed;
+          set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+          sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
+          sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
+          sed -i "s/$(CC)/gcc/g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
+          edksetup.bat mingw-w64 ForceRebuild
+
       - name: Build/Patch GenBin(Use for SctPkg)
         shell: cmd
         if: ${{ matrix.NAME == 'UefiSct' || matrix.NAME == 'IhvSct' }}
         run: |-
-          set path=%path%;${{ github.workspace }}\utilities\sed;
+          set WORKSPACE=${{ github.workspace }}
+          set path=%path%;%WORKSPACE%\utilities\sed;
           xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
-          call ${{ github.workspace }}\utilities\vsenv.bat x86
-          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
-          cd ${{ github.workspace }}\edk2\BaseTools\Source\C\GenBin
+          call %WORKSPACE%\utilities\vsenv.bat x86
+          call %WORKSPACE%\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
+          cd %WORKSPACE%\edk2\BaseTools\Source\C\GenBin
           nmake
-          copy ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenFds.bat ${{ github.workspace }}\edk2\BaseTools\BinWrappers\WindowsLike\GenBin.bat
+          copy %WORKSPACE%\edk2\BaseTools\BinWrappers\WindowsLike\GenFds.bat %WORKSPACE%\edk2\BaseTools\BinWrappers\WindowsLike\GenBin.bat
 
       - name: Prepare environment for Python EFI
         shell: cmd
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
-          set path=%path%;${{ github.workspace }}\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\sed;
           pushd %CD%
           cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8
           python srcprep.py
@@ -78,7 +106,7 @@ jobs:
         shell: cmd
         if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
-          set path=%path%;${{ github.workspace }}\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\sed;
           REM Remove 5 seconds delay to shell
           sed -i "s+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1" edk2/ShellPkg/ShellPkg.dec
           REM Remove assert when enable debug mode
@@ -94,12 +122,12 @@ jobs:
           sed -i "1734s/KeyboardWaitForValue/\/\/KeyboardWaitForValue/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
           sed -i "1736s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
 
-      - name: Build
+      - name: Build with VS2019
+        if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
         run: |-
-          call ${{ github.workspace }}\utilities\vsenv.bat x64
-          call ${{ github.workspace }}\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           set WORKSPACE=${{ github.workspace }}
+          cd %WORKSPACE%
           set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
           mklink /D SctPkg edk2-test\uefi-sct\SctPkg
           set PACKAGES_PATH=%WORKSPACE%/edk2
@@ -110,21 +138,44 @@ jobs:
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
-          cd %WORKSPACE%\edk2
+          call %WORKSPACE%\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
+          build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
+
+      - name: Build with CLANG
+        if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
+        shell: cmd
+        run: |-
+          set WORKSPACE=${{ github.workspace }}
+          cd %WORKSPACE%
+          set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
+          set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+          set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
+          mklink /D SctPkg edk2-test\uefi-sct\SctPkg
+          set PACKAGES_PATH=%WORKSPACE%/edk2
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Silicon/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Features/Intel
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
+          set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
+          call %WORKSPACE%\edk2\edksetup.bat Mingw-w64
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
       - name: Create UefiSct packages
         shell: cmd
         if: ${{ matrix.NAME == 'UefiSct' }}
         run: |-
-          cd ${{ github.workspace }}\Build\UefiSct\${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
+          set WORKSPACE=${{ github.workspace }}
+          cd %WORKSPACE%\Build\UefiSct\${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
           ..\..\..\SctPkg\CommonGenFramework.bat uefi_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
 
       - name: Create IhvSct packages
         shell: cmd
         if: ${{ matrix.NAME == 'IhvSct' }}
         run: |-
-          cd ${{ github.workspace }}\Build\IhvSct\${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
+          set WORKSPACE=${{ github.workspace }}
+          cd %WORKSPACE%\Build\IhvSct\${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
           ..\..\..\SctPkg\CommonGenFramework.bat ihv_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
 
       - name: Create Python package
