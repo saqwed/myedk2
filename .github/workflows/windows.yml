@@ -70,11 +70,11 @@ jobs:
           set HOST_ARCH=X64
           set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
           set path=%path%;%WORKSPACE%\utilities\sed;
-          set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
-          sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
-          sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
-          sed -i "s/$(CC)/gcc/g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
-          edksetup.bat mingw-w64 ForceRebuild
+          set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
+          sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
+          sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
+          sed -i "s/$(CC)/gcc/g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
+          %WORKSPACE%\edk2\edksetup.bat mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
         shell: cmd
