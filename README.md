@@ -103,7 +103,9 @@ REM open a new command prompt
 set WORKSPACE=%CD%
 set HOST_ARCH=X64
 set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
+set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
 set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+REM Need to use sed and awk, you can download them in utilities directory
 sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
 sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
 sed -i "s/$(CC)/gcc/g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
@@ -115,6 +117,7 @@ edksetup.bat Mingw-w64 Rebuild
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
+set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
 REM open a new command prompt with administrator privileges for mklink
 mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
 REM
@@ -136,6 +139,7 @@ build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
+set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
 set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
 set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
 REM open a new command prompt with administrator privileges for mklink
