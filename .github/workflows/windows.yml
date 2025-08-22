@@ -62,19 +62,19 @@ jobs:
           set PACKAGES_PATH=%WORKSPACE%\edk2
           %WORKSPACE%\edk2\edksetup.bat ForceRebuild
 
-      - name: Build BaseTools with CLANG
+      - name: Build BaseTools with GCC
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
-          set path=%path%;%WORKSPACE%\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\
           set HOST_ARCH=X64
           set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
           set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
           set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-          sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
-          sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
-          sed -i "s/$(CC)/gcc/g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
+          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/AParser.cpp
+          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/DLexer.h
+          sed -i "s/$(CC)/gcc/g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/antlr/makefile
           %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
@@ -82,7 +82,7 @@ jobs:
         if: ${{ matrix.NAME == 'UefiSct' || matrix.NAME == 'IhvSct' }}
         run: |-
           set WORKSPACE=${{ github.workspace }}
-          set path=%path%;%WORKSPACE%\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\
           xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
           call %WORKSPACE%\utilities\vsenv.bat x86
@@ -95,7 +95,7 @@ jobs:
         shell: cmd
         if: ${{ matrix.NAME == 'AppPkg' }}
         run: |-
-          set path=%path%;%WORKSPACE%\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\
           pushd %CD%
           cd edk2-libc/AppPkg/Applications/Python/Python-3.6.8
           python srcprep.py
@@ -107,7 +107,7 @@ jobs:
         shell: cmd
         if: ${{ matrix.NAME == 'ShellPkg' }}
         run: |-
-          set path=%path%;%WORKSPACE%\utilities\sed;
+          set path=%path%;%WORKSPACE%\utilities\
           REM Remove 5 seconds delay to shell
           sed -i "s+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|5|UINT32|0x00000015+gEfiShellPkgTokenSpaceGuid.PcdShellDefaultDelay|0|UINT32|0x00000015+1" edk2/ShellPkg/ShellPkg.dec
           REM Remove assert when enable debug mode
