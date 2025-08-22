@@ -149,7 +149,7 @@ jobs:
           set WORKSPACE=${{ github.workspace }}
           cd %WORKSPACE%
           set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
-          set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+          set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
           set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
           mklink /D SctPkg edk2-test\uefi-sct\SctPkg
           set PACKAGES_PATH=%WORKSPACE%/edk2
