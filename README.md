@@ -140,7 +140,7 @@ build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 REM open a new command prompt
 set WORKSPACE=%CD%
 set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
-set EDK_TOOLS_BIN=%WORKSPACE%\BaseTools\Source\C\bin\
+set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
 set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
 REM open a new command prompt with administrator privileges for mklink
 mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
