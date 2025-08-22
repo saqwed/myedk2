@@ -63,7 +63,7 @@ jobs:
           %WORKSPACE%\edk2\edksetup.bat ForceRebuild
 
       - name: Build BaseTools with CLANG
-        if: ${{ matrix.TOOLCHAIN == 'CLANG' }}
+        if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
