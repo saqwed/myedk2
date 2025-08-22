@@ -52,30 +52,32 @@ jobs:
       - name: Setup CLANG build environment
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
+          curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
+          ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
           choco install mingw llvm
 
       - name: Build BaseTools with VS2019
-        if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
+        # if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
           set PACKAGES_PATH=%WORKSPACE%\edk2
           %WORKSPACE%\edk2\edksetup.bat ForceRebuild
 
-      - name: Build BaseTools with GCC
-        if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
-        shell: cmd
-        run: |-
-          set WORKSPACE=${{ github.workspace }}
-          set path=%path%;%WORKSPACE%\utilities\
-          set HOST_ARCH=X64
-          set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
-          set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
-          set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/AParser.cpp
-          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/DLexer.h
-          sed -i "s/$(CC)/gcc/g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/antlr/makefile
-          %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
+      # - name: Build BaseTools with GCC
+      #   if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
+      #   shell: cmd
+      #   run: |-
+      #     set WORKSPACE=${{ github.workspace }}
+      #     set path=%path%;%WORKSPACE%\utilities\
+      #     set HOST_ARCH=X64
+      #     set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
+      #     set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+      #     set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
+      #     sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/AParser.cpp
+      #     sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/DLexer.h
+      #     sed -i "s/$(CC)/gcc/g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/antlr/makefile
+      #     %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
         shell: cmd
