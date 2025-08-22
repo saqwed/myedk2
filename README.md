@@ -72,7 +72,6 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 - Install Python 3.x
 - Install [Microsoft Visual Studio community 2019](https://aka.ms/vs/16/release/vs_community.exe)
 - Install [NASM 2.16.03](https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip) (edk2_stable202205 or above)
-
   - [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
   - [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
@@ -86,14 +85,10 @@ git clone --recursive -j4 -v https://github.com/saqwed/myedk2.git myedk2
 ### Setup edk2 build environment
 
 ```batch
-rem Open "x86 Native Tools Command Prompt for VS 2019" via start menu
+REM open a new command prompt
 set WORKSPACE=%CD%
-cd %WORKSPACE%\edk2
-set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
-edksetup.bat VS2019
-cd %WORKSPACE%\edk2\BaseTools
-toolsetup.bat
-nmake
+set PACKAGES_PATH=%WORKSPACE%\edk2
+edk2\edksetup.bat ForceRebuild
 ```
 
 Exit this command prompt windows and reopen another one for next steps.
@@ -103,7 +98,9 @@ Exit this command prompt windows and reopen another one for next steps.
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
+REM open a new command prompt with administrator privileges for mklink
 mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
+REM
 set PACKAGES_PATH=%WORKSPACE%/edk2
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
@@ -112,6 +109,7 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Features/Intel
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
+REM
 edk2\edksetup.bat VS2019
 build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
