@@ -10,17 +10,17 @@ jobs:
       fail-fast: false
       matrix:
         include: [
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
-          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
-          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
+          { NAME: 'AppPkg',         PACKAGE: 'AppPkg/AppPkg.dsc',                                     TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '-D BUILD_PYTHON368' },
+          { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'ShellPkg',       PACKAGE: 'ShellPkg/ShellPkg.dsc',                                 TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'CLANGPDB',     ADDITIONAL_DEFINITION: '' },
-          { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'FatPkg',         PACKAGE: 'FatPkg/FatPkg.dsc',                                     TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'AsixPkg',        PACKAGE: 'Drivers/ASIX/Asix.dsc',                                 TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'DisplayLinkPkg', PACKAGE: 'Drivers/DisplayLink/DisplayLinkPkg/DisplayLinkPkg.dsc', TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
           { NAME: 'OvmfPkg',        PACKAGE: 'OvmfPkg/OvmfPkgX64.dsc',                                TARGET: 'DEBUG',   ARCH: 'X64',     TOOLCHAIN: 'CLANGPDB',     ADDITIONAL_DEFINITION: '' },
-          { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
-          { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2019',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'UefiSct',        PACKAGE: 'SctPkg/UEFI/UEFI_SCT.dsc',                              TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
+          { NAME: 'IhvSct',         PACKAGE: 'SctPkg/UEFI/IHV_SCT.dsc',                               TARGET: 'RELEASE', ARCH: 'X64',     TOOLCHAIN: 'VS2022',       ADDITIONAL_DEFINITION: '' },
         ]
     steps:
       - name: Checkout repositories
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Setup build environment
         shell: cmd
@@ -42,25 +42,18 @@ jobs:
           curl -SL --output ${{ github.workspace }}\iasl-win-20240321.zip https://downloadmirror.intel.com/819464/iasl-win-20240321.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20240321.zip' -DestinationPath 'c:\ASL'"
 
-      - name: Setup VS2019 build environment
-        if: ${{ matrix.TOOLCHAIN == 'VS2019' }}
-        shell: cmd
-        run: |-
-          curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
-          ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
-
       - name: Setup CLANG build environment
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
           choco install mingw llvm
 
-      - name: Build BaseTools with VS2019
+      - name: Build BaseTools with VS2022
         if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
           set PACKAGES_PATH=%WORKSPACE%\edk2
-          %WORKSPACE%\edk2\edksetup.bat ForceRebuild
+          %WORKSPACE%\edk2\edksetup.bat VS2022 ForceRebuild
 
       - name: Build BaseTools with GCC
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
@@ -123,7 +116,7 @@ jobs:
           sed -i "1734s/KeyboardWaitForValue/\/\/KeyboardWaitForValue/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
           sed -i "1736s/mWaitForValueTimeOut/\/\/mWaitForValueTimeOut/" edk2/MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KbdCtrller.c
 
-      - name: Build with VS2019
+      - name: Build with VS2022
         if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
         run: |-
