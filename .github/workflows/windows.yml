@@ -42,6 +42,20 @@ jobs:
           curl -SL --output ${{ github.workspace }}\iasl-win-20240321.zip https://downloadmirror.intel.com/819464/iasl-win-20240321.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20240321.zip' -DestinationPath 'c:\ASL'"
 
+      # - name: Setup VS2019 build environment
+      #   if: ${{ matrix.TOOLCHAIN == 'VS2019' }}
+      #   shell: cmd
+      #   run: |-
+      #     curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/16/release/vs_buildtools.exe
+      #     ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
+
+      # - name: Setup VS2022 build environment
+      #   if: ${{ matrix.TOOLCHAIN == 'VS2022' }}
+      #   shell: cmd
+      #   run: |-
+      #     curl -SL --output ${{ github.workspace }}\vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe
+      #     ${{ github.workspace }}\vs_buildtools.exe --quiet --wait --norestart --add Microsoft.VisualStudio.Component.VC.CoreBuildTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.22000
+
       - name: Setup CLANG build environment
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
