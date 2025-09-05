@@ -94,16 +94,17 @@ git clone --recursive -j4 -v https://github.com/saqwed/myedk2.git myedk2
 REM Install EdkClangSetup-20.1.5.0.exe manually by yourself or use below script to install it
 choco install 7zip wget
 wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%TEMP%\EdkClangSetup-20.1.8.0.exe
-7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -oC:\edk2-clang-installer -y
-xcopy /e /y c:\edk2-clang-installer\clang64\ c:\edk2-clang\
-rd /s /q C:\edk2-clang-installer
+7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -o%TEMP%\edk2-clang-installer -y
+%TEMP%\EdkMingwInstaller.exe /silent
+rd /s /q %TEMP%\edk2-clang-installer
 ```
 
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
 set BASETOOLS_MINGW_PATH=C:\edk2-clang
-edksetup.bat Mingw-w64 ForceRebuild
+set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+edk2\edksetup.bat Mingw-w64 ForceRebuild
 ```
 
 ### Build
@@ -124,6 +125,7 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 REM
 set BASETOOLS_MINGW_PATH=C:\edk2-clang
+set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
 edk2\edksetup.bat Mingw-w64
 build -a X64 -t CLANGPDB -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
