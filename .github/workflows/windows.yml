@@ -59,7 +59,10 @@ jobs:
       - name: Setup CLANG build environment
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
-          choco install mingw llvm
+          choco install 7zip wget
+          wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe -O${{ runner.temp }}\EdkClangSetup.exe
+          7z x ${{ runner.temp }}\EdkClangSetup.exe -o${{ runner.temp }}\
+          ${{ runner.temp }}\EdkMingwInstaller.exe /silent
 
       - name: Build BaseTools with VS2022
         if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
@@ -69,19 +72,13 @@ jobs:
           set PACKAGES_PATH=%WORKSPACE%\edk2
           %WORKSPACE%\edk2\edksetup.bat VS2022 ForceRebuild
 
-      - name: Build BaseTools with GCC
+      - name: Build BaseTools with CLANG
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
-          set path=%path%;%WORKSPACE%\utilities\
-          set HOST_ARCH=X64
-          set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
+          set BASETOOLS_MINGW_PATH=c:\edk2-clang
           set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
-          set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/AParser.cpp
-          sed -i "s/register//g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/h/DLexer.h
-          sed -i "s/$(CC)/gcc/g" %WORKSPACE%/edk2/BaseTools/Source/C/VfrCompile/Pccts/antlr/makefile
           %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
@@ -155,9 +152,6 @@ jobs:
         run: |-
           set WORKSPACE=${{ github.workspace }}
           cd %WORKSPACE%
-          set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
-          set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-          set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
           mklink /D SctPkg edk2-test\uefi-sct\SctPkg
           set PACKAGES_PATH=%WORKSPACE%/edk2
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
@@ -167,6 +161,9 @@ jobs:
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
+          set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
+          set BASETOOLS_MINGW_PATH=c:\edk2-clang
+          set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
           call %WORKSPACE%\edk2\edksetup.bat Mingw-w64
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
