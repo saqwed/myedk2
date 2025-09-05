@@ -53,11 +53,9 @@ jobs:
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
           choco install 7zip wget
-          wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%TEMP%\EdkClangSetup-20.1.8.0.exe
-          7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -oC:\edk2-clang-installer -y
-          xcopy /e /y c:\edk2-clang-installer\clang64\ c:\edk2-clang\
-          rd /s /q C:\edk2-clang-installer
-
+          wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%RUNNER_TEMP%\EdkClangSetup-20.1.8.0.exe
+          7z x %RUNNER_TEMP%\EdkClangSetup-20.1.8.0.exe -o%RUNNER_TEMP%\edk2-clang-installer -y
+          xcopy /e /y %RUNNER_TEMP%\edk2-clang-installer\clang64\ c:\edk2-clang\
       - name: Build BaseTools with VS2019
         if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
