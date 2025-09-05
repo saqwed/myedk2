@@ -54,8 +54,8 @@ jobs:
         run: |-
           choco install 7zip wget
           wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O${{ runner.temp }}\EdkClangSetup-20.1.8.0.exe
-          7z x ${{ runner.temp }}\EdkClangSetup-20.1.8.0.exe -o${{ runner.temp }}\edk2-clang-installer -y
-          xcopy /e /y ${{ runner.temp }}\edk2-clang-installer\clang64\ c:\edk2-clang\
+          7z x ${{ runner.temp }}\EdkClangSetup-20.1.8.0.exe -o${{ runner.temp }}\edk2-clang
+
       - name: Build BaseTools with VS2019
         if: ${{ matrix.TOOLCHAIN != 'CLANGPDB' }}
         shell: cmd
@@ -69,7 +69,7 @@ jobs:
         shell: cmd
         run: |-
           set WORKSPACE=${{ github.workspace }}
-          set BASETOOLS_MINGW_PATH=C:\edk2-clang
+          set BASETOOLS_MINGW_PATH=${{ runner.temp }}\edk2-clang\clang64
           %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
@@ -152,7 +152,7 @@ jobs:
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
-          set BASETOOLS_MINGW_PATH=C:\edk2-clang
+          set BASETOOLS_MINGW_PATH=${{ runner.temp }}\edk2-clang\clang64
           call %WORKSPACE%\edk2\edksetup.bat Mingw-w64
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
