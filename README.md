@@ -75,7 +75,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
   - [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
 - Install EdkClang
-  - `https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe`
+  - [EdkClang v20.1.5](https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe)
 - Install Chocolatey
   - Following official web page to install it
     - `Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))`
@@ -93,8 +93,8 @@ git clone --recursive -j4 -v https://github.com/saqwed/myedk2.git myedk2
 ```batch
 REM Install EdkClangSetup-20.1.5.0.exe manually by yourself or use below script to install it
 choco install 7zip wget
-wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%TEMP%\EdkClangSetup-20.1.8.0.exe
-7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -o%TEMP%\edk2-clang-installer -y
+wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe -O%TEMP%\EdkClangSetup.exe
+7z x %TEMP%\EdkClangSetup.exe -o%TEMP%\edk2-clang-installer -y
 %TEMP%\EdkMingwInstaller.exe /silent
 rd /s /q %TEMP%\edk2-clang-installer
 ```
@@ -103,7 +103,7 @@ rd /s /q %TEMP%\edk2-clang-installer
 REM open a new command prompt
 set WORKSPACE=%CD%
 set BASETOOLS_MINGW_PATH=C:\edk2-clang
-set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
 edk2\edksetup.bat Mingw-w64 ForceRebuild
 ```
 
@@ -125,7 +125,7 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 REM
 set BASETOOLS_MINGW_PATH=C:\edk2-clang
-set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
 edk2\edksetup.bat Mingw-w64
 build -a X64 -t CLANGPDB -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```

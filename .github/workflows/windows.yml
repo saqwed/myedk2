@@ -71,7 +71,7 @@ jobs:
         run: |-
           set WORKSPACE=${{ github.workspace }}
           set BASETOOLS_MINGW_PATH=c:\edk2-clang
-          set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+          set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
           %WORKSPACE%\edk2\edksetup.bat Mingw-w64 ForceRebuild
 
       - name: Build/Patch GenBin(Use for SctPkg)
@@ -155,7 +155,7 @@ jobs:
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
           set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
           set BASETOOLS_MINGW_PATH=c:\edk2-clang
-          set BASE_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
+          set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
           call %WORKSPACE%\edk2\edksetup.bat Mingw-w64
           build -a ${{ matrix.ARCH }} -t ${{ matrix.TOOLCHAIN }} -p ${{ matrix.PACKAGE }} -b ${{ matrix.TARGET }} ${{ matrix.ADDITIONAL_DEFINITION }}
 
