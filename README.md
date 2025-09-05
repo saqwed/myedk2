@@ -95,7 +95,7 @@ REM Install EdkClangSetup-20.1.5.0.exe manually by yourself or use below script 
 choco install 7zip wget
 wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%TEMP%\EdkClangSetup-20.1.8.0.exe
 7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -oC:\edk2-clang-installer -y
-move /y c:\edk2-clang-installer\clang64 c:\edk2-clang
+xcopy /e /y c:\edk2-clang-installer\clang64\ c:\edk2-clang\
 rd /s /q C:\edk2-clang-installer
 ```
 
