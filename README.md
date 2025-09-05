@@ -65,12 +65,12 @@ source edk2/edksetup.sh
 build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
 
-## Windows + Visual Studio Community 2019
+## Windows + Visual Studio Community 2022
 
 ### Setup Windows build environment
 
 - Install Python 3.x
-- Install [Microsoft Visual Studio community 2019](https://aka.ms/vs/16/release/vs_community.exe)
+- Install [Microsoft Visual Studio community 2022](https://aka.ms/vs/17/release/vs_community.exe)
 - Install [NASM 2.16.03](https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip) (edk2_stable202205 or above)
   - [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
@@ -87,7 +87,7 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 git clone --recursive -j4 -v https://github.com/saqwed/myedk2.git myedk2
 ```
 
-### Setup edk2 build environment with VS2019
+### Setup edk2 build environment with VS2022
 
 ```batch
 REM open a new command prompt
@@ -106,13 +106,13 @@ set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
 set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
 set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
 REM Need to use sed and awk, you can download them in utilities directory
-sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
-sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
-sed -i "s/$(CC)/gcc/g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
+sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
+sed -i "s/register//g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
+sed -i "s/$(CC)/gcc/g" %WORKSPACE%\edk2\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
 edksetup.bat Mingw-w64 Rebuild
 ```
 
-### Build with VS2019
+### Build with VS2022
 
 ```batch
 REM open a new command prompt
@@ -130,8 +130,8 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 REM
-edk2\edksetup.bat VS2019
-build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
+edk2\edksetup.bat VS2022
+build -a X64 -t VS2022 -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
 
 ### Build with CLANG
