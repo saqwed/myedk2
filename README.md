@@ -65,21 +65,22 @@ source edk2/edksetup.sh
 build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
 
-## Windows + Visual Studio Community 2019
+## Windows + EdkClang
 
 ### Setup Windows build environment
 
 - Install Python 3.x
-- Install [Microsoft Visual Studio community 2019](https://aka.ms/vs/16/release/vs_community.exe)
 - Install [NASM 2.16.03](https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip) (edk2_stable202205 or above)
   - [PR#2354 - Replace Opcode with the corresponding instructions](https://github.com/tianocore/edk2/pull/2354)
   - [BaseTools: Upgrade the version of NASM tool](https://github.com/tianocore/edk2/commit/6a890db161cd6d378bec3499a1e774db3f5a27a7)
   - [need help - edk2 build issue](https://edk2.groups.io/g/devel/topic/90276518)
+- Install EdkClang
+  - `https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe`
 - Install Chocolatey
   - Following official web page to install it
     - `Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))`
-- Install mingw and llvm
-  - `choco install mingw llvm`
+- (Optional) Install 7zip and wget
+  - `choco install 7zip wget`
 
 ### Clone repositories
 
@@ -87,37 +88,29 @@ build -a X64 -t GCC -p ShellPkg/ShellPkg.dsc -b RELEASE
 git clone --recursive -j4 -v https://github.com/saqwed/myedk2.git myedk2
 ```
 
-### Setup edk2 build environment with VS2019
+### Setup edk2 build environment
 
 ```batch
-REM open a new command prompt
-set WORKSPACE=%CD%
-set PACKAGES_PATH=%WORKSPACE%\edk2
-edk2\edksetup.bat ForceRebuild
+REM Install EdkClangSetup-20.1.5.0.exe manually by yourself or use below script to install it
+choco install 7zip wget
+wget https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.8/EdkClangSetup-20.1.8.0.exe -O%TEMP%\EdkClangSetup-20.1.8.0.exe
+7z x %TEMP%\EdkClangSetup-20.1.8.0.exe -oC:\edk2-clang-installer -y
+move /y c:\edk2-clang-installer\clang64 c:\edk2-clang
+rd /s /q C:\edk2-clang-installer
 ```
 
-### Setup edk2 build environment with CLANG
-
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
-set HOST_ARCH=X64
-set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
-set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
-set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-REM Need to use sed and awk, you can download them in utilities directory
-sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\AParser.cpp
-sed -i "s/register//g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\h\DLexer.h
-sed -i "s/$(CC)/gcc/g" %WORKSPACE%\BaseTools\Source\C\VfrCompile\Pccts\antlr\makefile
-edksetup.bat Mingw-w64 Rebuild
+set BASETOOLS_MINGW_PATH=C:\edk2-clang
+edksetup.bat Mingw-w64 ForceRebuild
 ```
 
-### Build with VS2019
+### Build
 
 ```batch
 REM open a new command prompt
 set WORKSPACE=%CD%
-set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
 REM open a new command prompt with administrator privileges for mklink
 mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
 REM
@@ -130,30 +123,7 @@ set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
 set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
 REM
-edk2\edksetup.bat VS2019
-build -a X64 -t VS2019 -p ShellPkg/ShellPkg.dsc -b RELEASE
-```
-
-### Build with CLANG
-
-```batch
-REM open a new command prompt
-set WORKSPACE=%CD%
-set EDK2_LIBC_PATH=%WORKSPACE%\edk2-libc
-set EDK_TOOLS_BIN=%WORKSPACE%\edk2\BaseTools\Source\C\bin\
-set BASETOOLS_MINGW_PATH=c:\ProgramData\mingw64\mingw64\
-REM open a new command prompt with administrator privileges for mklink
-mklink /D %WORKSPACE%\SctPkg %WORKSPACE%\edk2-test\uefi-sct\SctPkg
-REM
-set PACKAGES_PATH=%WORKSPACE%/edk2
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Platform/Intel
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Silicon/Intel
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-platforms/Features/Intel
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-libc
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/edk2-test
-set PACKAGES_PATH=%PACKAGES_PATH%;%WORKSPACE%/SctPkg
-REM
+set BASETOOLS_MINGW_PATH=C:\edk2-clang
 edk2\edksetup.bat Mingw-w64
 build -a X64 -t CLANGPDB -p ShellPkg/ShellPkg.dsc -b RELEASE
 ```
