@@ -59,7 +59,7 @@ jobs:
       - name: Setup CLANG build environment
         if: ${{ matrix.TOOLCHAIN == 'CLANGPDB' }}
         run: |-
-          powershell -Command "Invoke-WebRequest -Uri https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe -OutFile ${{ runner.temp }}\EdkClangSetup.exe"
+          powershell -Command "Invoke-WebRequest -Uri https://github.com/tianocore/edk2-edkrepo/releases/download/edkclang-v20.1.5/EdkClangSetup-20.1.5.0.exe -OutFile ${{ runner.temp }}\EdkClangSetup.exe -ErrorAction Stop"
           powershell -Command "Install-Module -Name 7Zip4Powershell -Force; Import-Module 7Zip4Powershell; Expand-7Zip -ArchiveFileName '${{ runner.temp }}\EdkClangSetup.exe' -TargetPath '${{ runner.temp }}\'"
           ${{ runner.temp }}\EdkMingwInstaller.exe /silent
 
