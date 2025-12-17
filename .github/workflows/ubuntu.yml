@@ -113,13 +113,13 @@ jobs:
         if: ${{ matrix.NAME == 'UefiSct' }}
         run: |-
           cd ${{ github.workspace }}/Build/UefiSct/${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
-          ../../../SctPkg\CommonGenFramework.bat uefi_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
+          ../../../SctPkg/CommonGenFramework.sh uefi_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
 
       - name: Create IhvSct packages
         if: ${{ matrix.NAME == 'IhvSct' }}
         run: |-
           cd ${{ github.workspace }}/Build/IhvSct/${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}
-          ../../../SctPkg/CommonGenFramework.bat ihv_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
+          ../../../SctPkg/CommonGenFramework.sh ihv_sct ${{ matrix.ARCH }} Install${{ matrix.ARCH }}.efi
 
       - name: Create Python package
         if: ${{ matrix.NAME == 'AppPkg' }}

@@ -89,6 +89,7 @@ jobs:
           set path=%path%;%WORKSPACE%\utilities\
           xcopy /S edk2-test\uefi-sct\SctPkg\Tools\Source\GenBin edk2\BaseTools\Source\C\GenBin\
           sed -i 's+$(EDK_TOOLS_PATH)/Source/C+..+1' edk2/BaseTools/Source/C/GenBin/GNUmakefile
+          set EDK_TOOLS_PATH=%WORKSPACE%\edk2\BaseTools
           call %WORKSPACE%\utilities\vsenv.bat x86
           call %WORKSPACE%\edk2\edksetup.bat ${{ matrix.TOOLCHAIN }}
           cd %WORKSPACE%\edk2\BaseTools\Source\C\GenBin
