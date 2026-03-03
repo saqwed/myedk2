@@ -39,8 +39,8 @@ jobs:
           curl -SL --output ${{ github.workspace }}\nasm-2.16.03-win64.zip https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/win64/nasm-2.16.03-win64.zip
           powershell -Command "expand-archive -Path '${{ github.workspace }}\nasm-2.16.03-win64.zip' -DestinationPath 'c:\'"
           move c:\nasm-2.16.03 c:\nasm
-          curl -SL --output ${{ github.workspace }}\iasl-win-20240321.zip https://downloadmirror.intel.com/819464/iasl-win-20240321.zip
-          powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20240321.zip' -DestinationPath 'c:\ASL'"
+          curl -SL --output ${{ github.workspace }}\iasl-win-20251212.zip https://github.com/acpica/acpica/releases/download/20251212/iasl-win-20251212.zip
+          powershell -Command "expand-archive -Path '${{ github.workspace }}\iasl-win-20251212.zip' -DestinationPath 'c:\ASL'"
 
       # - name: Setup VS2019 build environment
       #   if: ${{ matrix.TOOLCHAIN == 'VS2019' }}
