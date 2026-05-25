@@ -28,7 +28,7 @@ jobs:
         ]
     steps:
       - name: Checkout repositories
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -57,7 +57,7 @@ jobs:
           cd $WORKSPACE/edk2-platforms/Platform/Intel
           python build_bios.py -p ${{ matrix.NAME }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: edk2_intel_miniplatform_${{ matrix.NAME }}_${{ github.sha }}
           retention-days: 14
