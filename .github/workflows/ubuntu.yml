@@ -28,7 +28,7 @@ jobs:
         ]
     steps:
       - name: Checkout repositories
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -130,7 +130,7 @@ jobs:
           edk2-libc/AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh ${{ matrix.TOOLCHAIN }} ${{ matrix.TARGET }} ${{ matrix.ARCH }} ${{ github.workspace }}/Build/Python368
 
 # Ref to AppPkg/Applications/Python/Python-3.6.8/create_python_pkg.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ matrix.NAME == 'AppPkg' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
@@ -145,7 +145,7 @@ jobs:
             Build/**/AutoGen.*
             Build/Python368/**
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ matrix.NAME == 'UefiSct' || matrix.NAME == 'IhvSct' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
@@ -160,7 +160,7 @@ jobs:
             Build/**/AutoGen.*
             Build/**/SctPackageX64/*.*
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ matrix.NAME != 'AppPkg' && matrix.NAME != 'UefiSct' && matrix.NAME != 'IhvSct' }}
         with:
           name: edk2_${{ matrix.NAME }}_${{ matrix.TARGET }}_${{ matrix.TOOLCHAIN }}_${{ matrix.ARCH }}_${{ github.sha }}
